@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New order – LUIS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/luis.css">
+  <style>
+    /* ── Chips ── */
+    .order-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 14px;
+      border: 1px solid #b9c7d2;
+      border-radius: 4px;
+      background: #eef2f5;
+      color: #0d3349;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: default;
+      user-select: none;
+    }
+    /* Ghost text links (Rules + Recent orders) */
+    .ghost-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #0d3349;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .ghost-link--semibold { font-weight: 600; }
+    .ghost-link--disabled { opacity: 0.45; pointer-events: none; }
+    .ghost-link:hover,
+    .ghost-link.is-open  { text-decoration: underline; text-underline-offset: 3px; }
+    .ghost-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 9px;
+      background: #dde6ec;
+      color: #0d3349;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    /* ── Tag grid ── */
+    .tag-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .colour-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid #dee2e6;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    #order-grid-table thead th {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #6c757d;
+      font-weight: 600;
+      border-top: 0;
+      padding-bottom: 6px;
+    }
+    /* ── Recent orders popover ── */
+    .recent-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1050;
+      background: rgba(13,51,73,0.18);
+    }
+    .recent-popover-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 620px;
+      max-width: calc(100vw - 32px);
+      max-height: 80vh;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #e7eaec;
+      border-radius: 8px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+    }
+    .recent-popover__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #0d3349;
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+      font-size: 14px;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+    .recent-popover__dismiss {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.65);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .recent-popover__dismiss:hover { color: #fff; }
+    .recent-popover__scope {
+      padding: 6px 16px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      font-size: 11px;
+      color: #6b7a83;
+    }
+    .recent-order-row {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eef0f1;
+    }
+    .recent-order-row:last-child { border-bottom: none; }
+    .recent-order__date {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0d3349;
+    }
+    .recent-order__type-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #eef1f2;
+      border-radius: 3px;
+      font-size: 11px;
+      color: #6b7a83;
+      margin-left: 6px;
+    }
+    .recent-order__line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: #0d3349;
+      flex-wrap: wrap;
+    }
+    .recent-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      border: 1px solid rgba(0,0,0,0.08);
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .tag-range-chip {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      background: #f4f6f7;
+      border: 1px solid #e7eaec;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 11px;
+      color: #0d3349;
+      white-space: nowrap;
+    }
+    .recent-order__qty { color: #6b7a83; font-size: 12px; }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar (ETM variant) -->
+  <nav class="navbar navbar-dark px-3">
+    <div class="d-flex align-items-center">
+      <span class="navbar-brand mb-0 h5 font-weight-bold" id="nav-title">New order</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-question-circle mr-1"></i>ETM Guidance
+      </a>
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-info-circle mr-1"></i>FAQs
+      </a>
+      <a href="#" class="nav-link mr-3" style="color:#c8d400;">
+        <i class="fas fa-user mr-1"></i>As: Allflex UK Group Ltd
+        <i class="fas fa-caret-down ml-1"></i>
+      </a>
+      <img src="images/luis-logo.svg" alt="LUIS – Livestock Unique Identification Service" style="width:44px;height:44px;">
+    </div>
+  </nav>
+
+  <!-- Yellow stripe -->
+  <div class="luis-stripe"></div>
+
+  <!-- Rail layout -->
+  <div class="luis-rail-layout">
+
+    <!-- ETM rail -->
+    <nav class="luis-rail" id="luis-rail">
+      <div class="rail-top">
+        <a href="index.html"
+           class="rail-item rail-etm"
+           title="Return to admin dashboard">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="rail-label">Return to Admin</span>
+        </a>
+        <a href="etm-dashboard.html"
+           class="rail-item active"
+           title="Dashboard">
+          <i class="fas fa-th-large"></i>
+          <span class="rail-label">Dashboard</span>
+        </a>
+        <div class="rail-divider"></div>
+        <button class="rail-item"
+                id="rail-btn-searches"
+                onclick="toggleRail('searches')"
+                title="Searches">
+          <i class="fas fa-search"></i>
+          <span class="rail-label">Searches</span>
+        </button>
+        <button class="rail-item"
+                id="rail-btn-manage"
+                onclick="toggleRail('manage')"
+                title="Manage">
+          <i class="fas fa-cog"></i>
+          <span class="rail-label">Manage</span>
+        </button>
+      </div>
+      <div class="rail-bottom">
+        <div class="rail-divider"></div>
+        <a href="#" class="rail-item rail-logout" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="rail-label">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ETM flyout panel -->
+    <div class="luis-flyout" id="luis-flyout">
+
+      <div class="flyout-panel" id="flyout-searches">
+        <div class="flyout-header">Searches</div>
+        <a href="select-keeper-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-user"></i> Keeper search
+        </a>
+        <a href="tag-history.html?etm=true" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-tag"></i> Tag history
+        </a>
+        <a href="recent-orders-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-file-alt"></i> Recent orders
+        </a>
+        <a href="recent-cancellations-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-times-circle"></i> Recent cancellations
+        </a>
+        <a href="recent-recoveries-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-redo"></i> Recent recoveries
+        </a>
+      </div>
+
+      <div class="flyout-panel" id="flyout-manage">
+        <div class="flyout-header">Manage</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-check-circle"></i> Approved tags
+        </a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-user"></i> Users
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Page content -->
+    <main class="rail-content flex-grow-1 py-3 px-4" style="background:#f4f5f6;">
+      <div id="order-form-root"></div>
+    </main>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="luis-footer">
+    <a href="#">Privacy Policy <i class="fas fa-external-link-alt"></i></a>
+    <a href="#">Cookie Policy <i class="fas fa-external-link-alt"></i></a>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/luis.js"></script>
+  <script src="js/luis-data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () { toggleRail('searches'); });
+  </script>
+  <script>
+  (function () {
+
+    /* ── Colour hex map — mirrors LUIS_DATA.getTagColourOptions internal map ── */
+    var COLOUR_HEX = {
+      Yellow: '#f2d024', Blue:   '#2f6fb0', Green:  '#4a9b4a', Orange: '#e08a2b',
+      Pink:   '#d46a9c', Purple: '#7d5aa8', Red:    '#c0392b', White:  '#ffffff',
+      Brown:  '#8a5a2b'
+    };
+
+    /* ── URL params ── */
+    var params  = new URLSearchParams(location.search);
+    var cph     = params.get('cph')     || '';
+    var herd    = params.get('herd')    || '';
+    var species = params.get('species') || '';
+    var type    = params.get('type')    || '';
+    var variant  = params.get('variant') || '';
+    var rowParam = params.get('row')     || '';
+    var reqQty   = params.get('qty')     || '1';
+
+    /* ── Data refs ── */
+    var OT        = window.LUIS_DATA.orderTypes || {};
+    var OB        = window.LUIS_DATA.orderBadge || {};
+    var keeper    = window.LUIS_DATA.getKeeperByCph(cph);
+    var orderType = OT[type];
+    var root      = document.getElementById('order-form-root');
+
+    /* ── Helpers ── */
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function enc(s) { return encodeURIComponent(String(s || '')); }
+    function labelCase(l) { return /^[A-Z]+$/.test(l) ? l : l.toLowerCase(); }
+
+    /* ── Defaults — bare page is always previewable ── */
+    if (!keeper) {
+      cph    = '44/077/0001';
+      keeper = window.LUIS_DATA.getKeeperByCph(cph);
+    }
+    if (!type || !OT[type]) { type = 'conventional'; }
+    orderType = OT[type]; // re-resolve after potential default
+    if (!species) { species = 'Cattle'; }
+    if (!variant) { variant = 'new'; }
+    if (!herd && keeper && keeper.herds && keeper.herds.length) {
+      herd = String(keeper.herds[0].herd);
+    }
+
+    /* ── Error only if still unresolvable after defaults ── */
+    if (!keeper || !orderType) {
+      root.innerHTML = '<p style="color:#888;font-size:13px;margin-top:24px;">'
+        + 'Keeper or order type not found. '
+        + '<a href="select-species.html">Return to select species.</a></p>';
+      return;
+    }
+
+    /* ── Stub recent orders — TODO: replace from orders model (scoped to keeper + herd + type) ── */
+    var RECENT_ORDERS = [
+      { date: '06 Oct 2023', type: 'Conventional', lines: [
+        { pos: 'Primary',   product: 'Ultra Senior TST',    colour: 'Yellow', hex: '#f2d024', tagStart: 'UK' + herd + ' 200019', tagEnd: '200118', qty: 100 },
+        { pos: 'Secondary', product: 'Standard Cattle Tag', colour: 'Green',  hex: '#4a9b4a', tagStart: 'UK' + herd + ' 200019', tagEnd: '200118', qty: 100 }
+      ]},
+      { date: '14 Mar 2023', type: 'Conventional', lines: [
+        { pos: 'Primary',   product: 'Ultra Senior TST',    colour: 'Yellow', hex: '#f2d024', tagStart: 'UK' + herd + ' 200001', tagEnd: '200030', qty: 30 },
+        { pos: 'Secondary', product: 'Standard Cattle Tag', colour: 'Blue',   hex: '#2f6fb0', tagStart: 'UK' + herd + ' 200001', tagEnd: '200030', qty: 30 }
+      ]},
+      { date: '01 Mar 2023', type: 'Conventional', lines: [
+        { pos: 'Primary',   product: 'Ultra Senior TST',    colour: 'Yellow', hex: '#f2d024', tagStart: 'UK' + herd + ' 200001', tagEnd: null, qty: 1 }
+      ]}
+    ];
+
+    /* Update navbar brand */
+    var navEl = document.getElementById('nav-title');
+    if (navEl) {
+      navEl.textContent = variant === 'replacement'
+        ? 'Replacement ' + labelCase(orderType.label) + ' order'
+        : 'New ' + labelCase(orderType.label) + ' order';
+    }
+
+    /* ── Coming soon for non-tag-grid templates (e.g. replica) ── */
+    if (orderType.template !== 'tag-grid') {
+      root.innerHTML = buildContextCard()
+        + '<div class="card mb-4"><div class="card-body text-center py-5">'
+        + '<h5 class="font-weight-bold mb-2" style="color:#0d3349;">Coming soon</h5>'
+        + '<p class="text-muted mb-0">The <strong>' + esc(orderType.label)
+        + '</strong> order form is not yet available in this prototype.</p>'
+        + '</div></div>';
+      return;
+    }
+
+    /* ── Build full tag-grid form ── */
+    root.innerHTML = buildContextCard()
+      + buildCard();
+
+    /* Wire radio → row visibility */
+    if (orderType.radio && !rowParam) {
+      document.querySelectorAll('input[name="tagType"]').forEach(function (r) {
+        r.addEventListener('change', applyRadio);
+      });
+      applyRadio();
+    }
+
+    /* Wire colour selects → live swatch indicator */
+    document.querySelectorAll('.colour-select').forEach(function (sel) {
+      var indicator = sel.parentElement.querySelector('.colour-swatch-indicator');
+      var hexMap    = JSON.parse(sel.getAttribute('data-hex-map') || '{}');
+      function update() {
+        var hex = hexMap[sel.value] || '';
+        if (hex) {
+          indicator.style.display     = 'inline-block';
+          indicator.style.background  = hex;
+          indicator.style.borderStyle = 'solid';
+          indicator.style.borderColor = '#dee2e6';
+        } else {
+          indicator.style.display = 'none';
+        }
+      }
+      sel.addEventListener('change', update);
+      update();
+    });
+
+    /* Wire Recent-orders + Rules chips → their popovers (mutually exclusive) */
+    (function () {
+      /* Inject both popover shells into the document */
+      var w1 = document.createElement('div');
+      w1.innerHTML = buildRecentPopover();
+      document.body.appendChild(w1.firstChild);
+
+      var w2 = document.createElement('div');
+      w2.innerHTML = buildRulesPopover();
+      document.body.appendChild(w2.firstChild);
+
+      /* Element refs */
+      var recentBtn     = document.getElementById('chip-recent-btn');
+      var recentOverlay = document.getElementById('recent-overlay');
+      var recentDismiss = document.getElementById('recent-dismiss');
+      var rulesBtn      = document.getElementById('chip-rules-btn');
+      var rulesOverlay  = document.getElementById('rules-overlay');
+      var rulesDismiss  = document.getElementById('rules-dismiss');
+
+      function closeRecent() {
+        if (!recentOverlay) return;
+        recentOverlay.style.display = 'none';
+        if (recentBtn) {
+          recentBtn.classList.remove('is-open');
+          var c = recentBtn.querySelector('.chip-recent__caret');
+          if (c) { c.classList.remove('fa-chevron-up'); c.classList.add('fa-chevron-down'); }
+        }
+      }
+      function openRecent() {
+        if (!recentOverlay || RECENT_ORDERS.length === 0) return;
+        closeRules();
+        recentOverlay.style.display = 'block';
+        if (recentBtn) {
+          recentBtn.classList.add('is-open');
+          var c = recentBtn.querySelector('.chip-recent__caret');
+          if (c) { c.classList.remove('fa-chevron-down'); c.classList.add('fa-chevron-up'); }
+        }
+      }
+      function closeRules() {
+        if (!rulesOverlay) return;
+        rulesOverlay.style.display = 'none';
+        if (rulesBtn) {
+          rulesBtn.classList.remove('is-open');
+          var c = rulesBtn.querySelector('.chip-rules__caret');
+          if (c) { c.classList.remove('fa-chevron-up'); c.classList.add('fa-chevron-down'); }
+        }
+      }
+      function openRules() {
+        if (!rulesOverlay) return;
+        closeRecent();
+        rulesOverlay.style.display = 'block';
+        if (rulesBtn) {
+          rulesBtn.classList.add('is-open');
+          var c = rulesBtn.querySelector('.chip-rules__caret');
+          if (c) { c.classList.remove('fa-chevron-down'); c.classList.add('fa-chevron-up'); }
+        }
+      }
+
+      /* Click — toggle open/close */
+      if (recentBtn) {
+        recentBtn.addEventListener('click', function () {
+          if (recentOverlay && recentOverlay.style.display !== 'none') { closeRecent(); } else { openRecent(); }
+        });
+      }
+      if (rulesBtn) {
+        rulesBtn.addEventListener('click', function () {
+          if (rulesOverlay && rulesOverlay.style.display !== 'none') { closeRules(); } else { openRules(); }
+        });
+      }
+
+      /* × dismiss */
+      if (recentDismiss) { recentDismiss.addEventListener('click', closeRecent); }
+      if (rulesDismiss)  { rulesDismiss.addEventListener('click', closeRules); }
+
+      /* Click-outside */
+      if (recentOverlay) {
+        recentOverlay.addEventListener('click', function (e) { if (e.target === recentOverlay) closeRecent(); });
+      }
+      if (rulesOverlay) {
+        rulesOverlay.addEventListener('click', function (e) { if (e.target === rulesOverlay) closeRules(); });
+      }
+
+      /* Esc closes whichever is open */
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' || e.key === 'Esc') { closeRecent(); closeRules(); }
+      });
+    })();
+
+    /* ══════════════════════════════════════════════════════
+       BUILDER FUNCTIONS
+    ══════════════════════════════════════════════════════ */
+
+    function buildContextCard() {
+      var addr = (keeper.address || []).filter(Boolean).join(', ');
+      var sub  = [keeper.name, addr, keeper.telephone, keeper.mobile].filter(Boolean).join(' · ');
+      return '<div class="context-card mb-3">'
+        +   '<div class="context-card__top">'
+        +     '<div class="context-card__identity">'
+        +       '<div class="context-card__eyebrow">Ordering for</div>'
+        +       '<div class="context-card__name-row">'
+        +         '<span class="context-card__name">' + esc(keeper.keeperName || keeper.name) + '</span>'
+        +         '<span class="context-card__cph-pill">CPH ' + esc(cph) + '</span>'
+        +       '</div>'
+        +       '<div class="context-card__details">' + esc(sub) + '</div>'
+        +     '</div>'
+        +     '<a href="select-species.html?cph=' + enc(cph) + '" class="context-card__change-keeper">'
+        +       '<i class="fas fa-exchange-alt"></i> Change keeper</a>'
+        +   '</div>'
+        + '</div>';
+    }
+
+    function buildTitle() {
+      var label     = labelCase(orderType.label);
+      var line1     = variant === 'replacement'
+        ? 'Replacement ' + label + ' order: ' + species
+        : 'Order ' + label + ' tags: ' + species;
+      var groupWord = species === 'Sheep' ? 'Flock' : 'Herd';
+      var icon      = species === 'Cattle' ? 'fa-tractor' : 'fa-tag';
+      var pill      = '<span style="display:inline-flex;align-items:center;gap:5px;'
+                    +   'background:#dde6ec;border:1px solid #c3d0d8;color:#0d3349;'
+                    +   'border-radius:4px;padding:3px 9px;font-size:12px;">'
+                    +   '<i class="fas ' + icon + '"></i> '
+                    +   esc(groupWord) + ' ' + esc(herd)
+                    + '</span>';
+      return '<p class="mb-2" style="font-size:18px;font-weight:500;color:#0d3349;">' + esc(line1) + '</p>'
+           + '<div class="mb-0">' + pill + '</div>';
+    }
+
+    function buildCard() {
+      /* Ghost text links — right-aligned, one per orderType.chips entry */
+      var ghostLinks = (orderType.chips || []).map(function (c) {
+        if (c === 'recent') {
+          var count    = RECENT_ORDERS.length;
+          var badge    = count > 0
+            ? ' <span class="ghost-badge">' + count + '</span>'
+            : '';
+          var disabled = count === 0 ? ' ghost-link--disabled' : '';
+          return '<span class="ghost-link ghost-link--semibold' + disabled + '" id="chip-recent-btn">'
+               + '<i class="fas fa-history"></i>'
+               + ' Recent orders'
+               + badge
+               + ' <i class="fas fa-chevron-down chip-recent__caret" style="font-size:9px;"></i>'
+               + '</span>';
+        }
+        if (c === 'rules') {
+          return '<span class="ghost-link" id="chip-rules-btn">'
+               + '<i class="fas fa-info-circle"></i>'
+               + ' Rules'
+               + ' <i class="fas fa-chevron-down chip-rules__caret" style="font-size:9px;"></i>'
+               + '</span>';
+        }
+        return '';
+      }).filter(Boolean).join('');
+
+      /* Top row: radio-left + links-right for Conventional/EID; links-only for Slaughter/pre-scoped */
+      var topRow;
+      if (orderType.radio && !rowParam) {
+        var r     = orderType.radio;
+        var rOpts = r.options.map(function (opt) {
+          var id      = 'tagType-' + opt.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          var checked = opt === r.default ? ' checked' : '';
+          return '<div class="form-check form-check-inline mr-3">'
+               +   '<input class="form-check-input" type="radio" name="tagType"'
+               +   ' id="' + id + '" value="' + esc(opt) + '"' + checked + '>'
+               +   '<label class="form-check-label" for="' + id + '">' + esc(opt) + '</label>'
+               + '</div>';
+        }).join('');
+        topRow = '<div class="d-flex align-items-center pb-3 mb-3"'
+               +   ' style="border-bottom:1px solid #e9ecef;font-size:0.875rem;">'
+               +   '<span class="mr-3 font-weight-bold" style="white-space:nowrap;">Physical tags required:</span>'
+               +   '<div class="d-flex align-items-center flex-wrap" style="flex:1;">' + rOpts + '</div>'
+               +   '<div style="display:inline-flex;align-items:center;gap:16px;'
+               +     'padding-left:16px;border-left:1px solid #e9ecef;margin-left:8px;">'
+               +   ghostLinks + '</div>'
+               + '</div>';
+      } else {
+        topRow = '<div class="d-flex justify-content-end align-items-center pb-2 mb-3"'
+               +   ' style="border-bottom:1px solid #e9ecef;">'
+               +   '<div style="display:inline-flex;align-items:center;gap:16px;">' + ghostLinks + '</div>'
+               + '</div>';
+      }
+
+      /* Row label map */
+      var ROW_LABEL = { primary: 'Primary', secondary: 'Secondary', eid: 'EID', nonEid: 'Non-EID' };
+
+      /* Pre-scoped: only show the requested row; full list otherwise */
+      var activeRows = rowParam
+        ? (orderType.rows || []).filter(function (r) { return r === rowParam; })
+        : (orderType.rows || []);
+
+      /* Grid rows — one per activeRows entry */
+      var rows = activeRows.map(function (row, i) {
+        /* Badge colour: use semantic position in full rows list, not activeRows index */
+        var bg      = variant === 'replacement' ? OB.replacement
+                    : ((orderType.rows || []).indexOf(row) === 0 ? OB.new.primaryEid : OB.new.secondaryNonEid);
+        var iconCol = bg === OB.new.primaryEid ? '#0d3349' : '#fff';
+
+        var badge = '<span class="tag-badge" style="background:' + bg + ';">'
+                  +   '<i class="fas fa-tag" style="font-size:0.8rem;color:' + iconCol + ';"></i>'
+                  + '</span>';
+
+        /* Tag name — product catalogue via getTagProducts */
+        var tagProds = window.LUIS_DATA.getTagProducts(species, type, row);
+        var tagSel;
+        if (tagProds.length === 0) {
+          tagSel = '<select class="form-control form-control-sm" style="max-width:380px;" disabled>'
+            + '<option>— TODO: products pending —</option>'
+            + '</select>';
+        } else {
+          var tagOpts = tagProds.map(function (p) {
+            return '<option value="' + esc(p.name) + '" data-rule-type="' + esc(p.ruleType) + '">'
+              + esc(p.name) + '</option>';
+          }).join('');
+          tagSel = '<select class="form-control form-control-sm" style="max-width:380px;">'
+            + '<option value="">Select a tag</option>'
+            + tagOpts
+            + '</select>';
+        }
+
+        /* Colour — entirely model-driven; no variant/colour logic in this page */
+        var colour = buildColourField(row);
+
+        var qty = '<input type="number" class="form-control form-control-sm" min="1" style="max-width:80px;">';
+
+        return '<tr data-row-id="' + esc(row) + '">'
+          + '<td class="align-middle" style="white-space:nowrap;">'
+          +   badge + '&nbsp;<span style="font-size:13px;font-weight:500;">'
+          +   esc(ROW_LABEL[row] || row) + '</span>'
+          + '</td>'
+          + '<td class="align-middle">'
+          +   tagSel
+          +   '<div id="order-err-' + esc(row) + '-tag" style="visibility:hidden;white-space:nowrap;color:#dc3545;font-size:0.78rem;margin-top:3px;">Select a tag to continue.</div>'
+          + '</td>'
+          + '<td class="align-middle">'
+          +   colour
+          +   '<div id="order-err-' + esc(row) + '-colour" style="visibility:hidden;white-space:nowrap;color:#dc3545;font-size:0.78rem;margin-top:3px;">Select a colour to continue.</div>'
+          + '</td>'
+          + '<td class="align-middle">'
+          +   qty
+          +   '<div id="order-err-' + esc(row) + '-qty" style="visibility:hidden;white-space:nowrap;color:#dc3545;font-size:0.78rem;margin-top:3px;">Enter a quantity.</div>'
+          + '</td>'
+          + '</tr>';
+      }).join('');
+
+      var table = '<table class="table mb-0" id="order-grid-table" style="width:740px;">'
+        + '<thead><tr>'
+        + '<th style="width:150px;"></th>'
+        + '<th style="min-width:220px;">Tag name</th>'
+        + '<th style="width:170px;">Colour</th>'
+        + '<th style="width:100px;">Quantity</th>'
+        + '</tr></thead>'
+        + '<tbody>' + rows + '</tbody>'
+        + '</table>';
+
+      var orderRef = '<hr class="mt-3 mb-3" style="max-width:740px;margin-left:0;">'
+        + '<p class="font-weight-bold mb-1" style="font-size:0.875rem;">Order reference</p>'
+        + '<p class="text-muted mb-2" style="font-size:0.8rem;">Manufacturer order reference (optional)</p>'
+        + '<input type="text" class="form-control" style="max-width:400px;">';
+
+      var titleBlock = '<div class="pb-3 mb-3" style="border-bottom:1px solid #e9ecef;">'
+                     + buildTitle()
+                     + '</div>';
+
+      var cardButtons = '<hr class="mt-4 mb-3">'
+        + '<div class="d-flex justify-content-between">'
+        +   '<a href="select-species.html?cph=' + enc(cph) + '"'
+        +     ' class="btn" style="background:#fff;border:1px solid #cbd2d6;color:#0d3349;font-weight:500;">'
+        +     'Cancel</a>'
+        +   '<button type="button" id="order-submit-btn" class="btn btn-luis">Order</button>'
+        + '</div>';
+
+      /* Amber band — only when arriving pre-scoped from Unmatched panel */
+      var amberBand = '';
+      if (rowParam) {
+        var BAND_LABEL = { primary: 'primary', secondary: 'secondary', eid: 'EID', nonEid: 'non-EID' };
+        var bandRowLabel = BAND_LABEL[rowParam] || rowParam;
+        amberBand = '<div style="display:flex;align-items:center;gap:10px;'
+          + 'background:#fff8e1;border:1px solid #f0c040;border-left:4px solid #e6a800;border-radius:6px;'
+          + 'padding:10px 14px;margin-bottom:16px;font-size:13px;color:#7a5800;">'
+          + '<i class="fas fa-exclamation-circle" style="flex-shrink:0;color:#e6a800;"></i>'
+          + '<span>This order is still missing a <strong>' + esc(bandRowLabel) + '</strong>'
+          + ' tag — ' + esc(reqQty) + ' required.</span>'
+          + '</div>';
+      }
+
+      var errorBanner = '<div id="order-error-banner" style="display:none;'
+        + 'background:#fff5f5;border:1px solid #fca5a5;border-left:4px solid #dc3545;'
+        + 'border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.85rem;color:#b91c1c;">'
+        + '<i class="fas fa-exclamation-circle mr-2"></i>'
+        + '<span id="order-error-msg"></span>'
+        + '</div>';
+
+      return '<div class="card mb-4">'
+        +   '<div class="card-body">'
+        +     titleBlock
+        +     topRow
+        +     amberBand
+        +     errorBanner
+        +     table
+        +     orderRef
+        +     cardButtons
+        +   '</div>'
+        + '</div>';
+    }
+
+    function buildColourField(row) {
+      /* Delegates entirely to getTagColourOptions — this function has no variant/colour logic */
+      var result = window.LUIS_DATA.getTagColourOptions(species, row, variant);
+
+      if (result.fixed) {
+        /* Single fixed colour: swatch + label (replacement = Red; primary/EID new = Yellow) */
+        return '<div class="d-flex align-items-center" style="gap:6px;">'
+          + '<span class="colour-swatch" style="background:' + esc(result.hex) + ';"></span>'
+          + '<span style="font-size:13px;">' + esc(result.value) + '</span>'
+          + '</div>';
+      }
+
+      if (result.options.length === 0) {
+        /* Empty stub — goat secondary, or any species/row with no colour data yet */
+        return '<select class="form-control form-control-sm" disabled>'
+          + '<option>— TODO: colours pending —</option>'
+          + '</select>';
+      }
+
+      /* Multi-colour: swatch hidden until a colour is chosen + select */
+      var hexMapJson = JSON.stringify(COLOUR_HEX);
+      var opts = result.options.map(function (c) {
+        return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+      }).join('');
+      return '<div class="d-flex align-items-center" style="gap:6px;">'
+        + '<span class="colour-swatch colour-swatch-indicator" style="display:none;"></span>'
+        + '<select class="form-control form-control-sm colour-select"'
+        +   ' data-hex-map=\'' + hexMapJson + '\'>'
+        +   '<option value="">Select a colour</option>' + opts
+        + '</select>'
+        + '</div>';
+    }
+
+    function buildButtons() {
+      return '<div class="d-flex justify-content-between">'
+        + '<a href="select-species.html?cph=' + enc(cph) + '"'
+        +   ' class="btn" style="background:#fff;border:1px solid #cbd2d6;color:#0d3349;font-weight:500;">'
+        +   'Cancel</a>'
+        + '<a href="order-view.html" class="btn btn-luis">Order</a>'
+        + '</div>';
+    }
+
+    function buildRecentPopover() {
+      var label     = labelCase(orderType.label);
+      var groupWord = species === 'Sheep' ? 'Flock' : 'Herd';
+      var scopeParts = [
+        esc(keeper.name || ''),
+        esc(groupWord + ' ' + herd),
+        esc(species),
+        esc(orderType.label)
+      ].filter(Boolean).join(' · ');
+
+      var rows = RECENT_ORDERS.map(function (order) {
+        var lines = order.lines.map(function (ln) {
+          var range = ln.tagEnd
+            ? esc(ln.tagStart) + '&ndash;' + esc(ln.tagEnd)
+            : esc(ln.tagStart);
+          return '<div class="recent-order__line">'
+            + '<span class="recent-swatch" style="background:' + esc(ln.hex) + ';"></span>'
+            + '<span><strong>' + esc(ln.pos) + '</strong> &mdash; ' + esc(ln.product) + ', ' + esc(ln.colour) + '</span>'
+            + '&nbsp;&middot;&nbsp;<span class="tag-range-chip">' + range + '</span>'
+            + '&nbsp;<span class="recent-order__qty">&times;' + esc(String(ln.qty)) + '</span>'
+            + '</div>';
+        }).join('');
+
+        return '<div class="recent-order-row">'
+          + '<div class="d-flex align-items-center mb-1">'
+          +   '<span class="recent-order__date">' + esc(order.date) + '</span>'
+          +   '<span class="recent-order__type-pill">' + esc(order.type) + '</span>'
+          + '</div>'
+          + lines
+          + '</div>';
+      }).join('');
+
+      if (!rows) {
+        rows = '<div style="padding:20px 16px;color:#6b7a83;font-size:13px;">No recent orders found.</div>';
+      }
+
+      return '<div class="recent-overlay" id="recent-overlay" style="display:none;">'
+        +   '<div class="recent-popover-card">'
+        +     '<div class="recent-popover__header">'
+        +       '<span>Recent ' + esc(label) + ' orders</span>'
+        +       '<button class="recent-popover__dismiss" id="recent-dismiss" aria-label="Close">&times;</button>'
+        +     '</div>'
+        +     '<div class="recent-popover__scope">' + scopeParts + '</div>'
+        +     '<div class="recent-popover__body">' + rows + '</div>'
+        +   '</div>'
+        + '</div>';
+    }
+
+    function buildRulesPopover() {
+      var rules = window.LUIS_DATA.getTagRules(species);
+      var body;
+
+      if (rules.pending) {
+        body = '<div style="padding:20px 16px;color:#6b7a83;font-size:13px;font-style:italic;">'
+             + '<i class="fas fa-clock mr-2"></i>Rules pending — to be provided.'
+             + '</div>';
+      } else {
+        var introHtml = '';
+        if (rules.intro) {
+          introHtml = '<div class="recent-popover__scope" style="display:flex;align-items:flex-start;gap:8px;">'
+                    + '<i class="fas fa-info-circle" style="color:#8a9600;margin-top:1px;flex-shrink:0;"></i>'
+                    + '<span>' + esc(rules.intro) + '</span>'
+                    + '</div>';
+        }
+        var pills = (rules.combos || []).map(function (c) {
+          return '<span style="display:inline-flex;align-items:center;padding:4px 10px;'
+               + 'background:#dde6ec;border:1px solid #c3d0d8;border-radius:4px;'
+               + 'font-size:12px;color:#0d3349;font-weight:500;">'
+               + esc(c) + '</span>';
+        }).join('');
+        body = introHtml
+          + '<div style="padding:16px;">'
+          +   '<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.06em;'
+          +     'color:#6b7a83;font-weight:600;margin-bottom:10px;">Permitted tag-type combinations</div>'
+          +   '<div style="display:flex;flex-wrap:wrap;gap:6px;">' + pills + '</div>'
+          + '</div>';
+      }
+
+      return '<div class="recent-overlay" id="rules-overlay" style="display:none;">'
+        +   '<div class="recent-popover-card">'
+        +     '<div class="recent-popover__header">'
+        +       '<span>Tag rules: ' + esc(species) + '</span>'
+        +       '<button class="recent-popover__dismiss" id="rules-dismiss" aria-label="Close">&times;</button>'
+        +     '</div>'
+        +     body
+        +   '</div>'
+        + '</div>';
+    }
+
+    /* ── Radio → row show/hide ────────────────────────────────────────────────
+       Both (last option) → all rows visible.
+       options[i] → show only rows[i]; hide others.
+       Mapping is index-positional: options[0]→rows[0], options[1]→rows[1].     */
+    function applyRadio() {
+      var r       = orderType.radio;
+      var checked = document.querySelector('input[name="tagType"]:checked');
+      if (!checked) return;
+      var val   = checked.value;
+      var isAll = val === r.options[r.options.length - 1]; /* "Both" is always last */
+
+      document.querySelectorAll('[data-row-id]').forEach(function (tr) {
+        var rowId = tr.getAttribute('data-row-id');
+        var show;
+        if (isAll) {
+          show = true;
+        } else {
+          var idx = r.options.indexOf(val);
+          show = idx >= 0 && orderType.rows[idx] === rowId;
+        }
+        tr.style.display = show ? '' : 'none';
+      });
+    }
+
+    /* ── Validation and submit ───────────────────────────────────────────────── */
+
+    var submitBtn = document.getElementById('order-submit-btn');
+    if (submitBtn) {
+
+      function getVisibleRows() {
+        var visible = [];
+        document.querySelectorAll('#order-grid-table [data-row-id]').forEach(function (tr) {
+          if (tr.style.display !== 'none') visible.push(tr);
+        });
+        return visible;
+      }
+
+      function setFieldError(field, errEl, hasError) {
+        field.style.borderColor   = hasError ? '#dc3545' : '';
+        field.style.backgroundColor = hasError ? '#fff5f5' : '';
+        errEl.style.visibility    = hasError ? 'visible' : 'hidden';
+      }
+
+      /* Wire live-clear listeners once per row (all rows, not just visible) */
+      document.querySelectorAll('#order-grid-table [data-row-id]').forEach(function (tr) {
+        var row  = tr.getAttribute('data-row-id');
+        var tds  = tr.querySelectorAll('td');
+
+        var tagSel  = tds[1] ? tds[1].querySelector('select') : null;
+        var tagErr  = document.getElementById('order-err-' + row + '-tag');
+        if (tagSel && !tagSel.disabled && tagErr) {
+          tagSel.addEventListener('change', function () {
+            if (tagSel.value) setFieldError(tagSel, tagErr, false);
+          });
+        }
+
+        var colSel = tds[2] ? tds[2].querySelector('.colour-select') : null;
+        var colErr = document.getElementById('order-err-' + row + '-colour');
+        if (colSel && colErr) {
+          colSel.addEventListener('change', function () {
+            if (colSel.value) setFieldError(colSel, colErr, false);
+          });
+        }
+
+        var qtyIn  = tds[3] ? tds[3].querySelector('input[type="number"]') : null;
+        var qtyErr = document.getElementById('order-err-' + row + '-qty');
+        if (qtyIn && qtyErr) {
+          qtyIn.addEventListener('input', function () {
+            var v = parseInt(qtyIn.value, 10);
+            if (!isNaN(v) && v >= 1) setFieldError(qtyIn, qtyErr, false);
+          });
+        }
+      });
+
+      submitBtn.addEventListener('click', function () {
+        var rows       = getVisibleRows();
+        var errorCount = 0;
+
+        rows.forEach(function (tr) {
+          var row = tr.getAttribute('data-row-id');
+          var tds = tr.querySelectorAll('td');
+
+          var tagSel = tds[1] ? tds[1].querySelector('select') : null;
+          var tagErr = document.getElementById('order-err-' + row + '-tag');
+          if (tagSel && !tagSel.disabled && tagErr) {
+            var ok = tagSel.value !== '';
+            setFieldError(tagSel, tagErr, !ok);
+            if (!ok) errorCount++;
+          }
+
+          var colSel = tds[2] ? tds[2].querySelector('.colour-select') : null;
+          var colErr = document.getElementById('order-err-' + row + '-colour');
+          if (colSel && colErr) {
+            var ok = colSel.value !== '';
+            setFieldError(colSel, colErr, !ok);
+            if (!ok) errorCount++;
+          }
+
+          var qtyIn  = tds[3] ? tds[3].querySelector('input[type="number"]') : null;
+          var qtyErr = document.getElementById('order-err-' + row + '-qty');
+          if (qtyIn && qtyErr) {
+            var qtyVal = parseInt(qtyIn.value, 10);
+            var ok = !isNaN(qtyVal) && qtyVal >= 1;
+            setFieldError(qtyIn, qtyErr, !ok);
+            if (!ok) errorCount++;
+          }
+        });
+
+        var banner    = document.getElementById('order-error-banner');
+        var bannerMsg = document.getElementById('order-error-msg');
+        if (errorCount > 0) {
+          if (banner)    banner.style.display = '';
+          if (bannerMsg) bannerMsg.textContent = errorCount + ' field'
+            + (errorCount === 1 ? '' : 's') + ' need'
+            + (errorCount === 1 ? 's' : '') + ' attention before this order can be placed.';
+          return;
+        }
+        if (banner) banner.style.display = 'none';
+
+        /* Build the order object */
+        var refInput = document.querySelector('#order-form-root input[type="text"]');
+        var newOrder = {
+          id:              window.LUIS_DATA.getNextOrderId(),
+          cph:             cph,
+          herd:            herd,
+          species:         species,
+          type:            type,
+          variant:         variant,
+          date:            new Date().toISOString(),
+          orderedBy:       'AllflexServiceAccount',
+          manufacturerRef: refInput && refInput.value.trim() ? refInput.value.trim() : null,
+          lines:           []
+        };
+
+        rows.forEach(function (tr) {
+          var row    = tr.getAttribute('data-row-id');
+          var tds    = tr.querySelectorAll('td');
+          var tagSel = tds[1] ? tds[1].querySelector('select') : null;
+          var qtyIn  = tds[3] ? tds[3].querySelector('input[type="number"]') : null;
+          if (!tagSel || !qtyIn) return;
+
+          var product = tagSel.value;
+          var qty     = parseInt(qtyIn.value, 10);
+
+          /* Colour: re-call getTagColourOptions so we never need to scrape the DOM for fixed colours */
+          var colResult = window.LUIS_DATA.getTagColourOptions(species, row, variant);
+          var colour = '', colourHex = '';
+          if (colResult.fixed) {
+            colour    = colResult.value;
+            colourHex = colResult.hex;
+          } else {
+            var colSel = tds[2] ? tds[2].querySelector('.colour-select') : null;
+            if (colSel && colSel.value) {
+              colour    = colSel.value;
+              colourHex = COLOUR_HEX[colour] || '';
+            }
+          }
+
+          var tagRange = window.LUIS_DATA.getNextTagRange(cph, herd, qty);
+          if (!tagRange) return;
+
+          newOrder.lines.push({
+            row:       row,
+            product:   product,
+            colour:    colour,
+            colourHex: colourHex,
+            qty:       qty,
+            class:     'Flag',
+            tagPrefix: tagRange.tagPrefix,
+            tagStart:  tagRange.start,
+            tagEnd:    tagRange.end
+          });
+        });
+
+        if (!newOrder.lines.length) return;
+
+        try { sessionStorage.setItem('luisDemoNewOrder', JSON.stringify(newOrder)); } catch (e) {}
+        window.location.href = 'order-view.html?id=' + encodeURIComponent(newOrder.id);
+      });
+    }
+
+  })();
+  </script>
+</body>
+</html>

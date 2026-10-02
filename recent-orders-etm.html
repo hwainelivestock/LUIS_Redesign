@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recent Orders - LUIS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/luis.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar (ETM variant) -->
+  <nav class="navbar navbar-dark px-3">
+    <div class="d-flex align-items-center">
+      <span class="navbar-brand mb-0 h5 font-weight-bold">Recent orders</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-question-circle mr-1"></i>ETM Guidance
+      </a>
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-info-circle mr-1"></i>FAQs
+      </a>
+      <a href="#" class="nav-link mr-3" style="color:#c8d400;">
+        <i class="fas fa-user mr-1"></i>As: Allflex UK Group Ltd
+        <i class="fas fa-caret-down ml-1"></i>
+      </a>
+      <img src="images/luis-logo.svg" alt="LUIS - Livestock Unique Identification Service" style="width:44px;height:44px;">
+    </div>
+  </nav>
+
+  <!-- Yellow stripe -->
+  <div class="luis-stripe"></div>
+
+  <!-- Rail layout -->
+  <div class="luis-rail-layout">
+
+    <!-- Icon rail -->
+    <nav class="luis-rail" id="luis-rail">
+      <div class="rail-top">
+        <a href="index.html"
+           class="rail-item rail-etm"
+           title="Return to admin dashboard">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="rail-label">Return to Admin</span>
+        </a>
+        <a href="etm-dashboard.html"
+           class="rail-item active"
+           title="Dashboard">
+          <i class="fas fa-th-large"></i>
+          <span class="rail-label">Dashboard</span>
+        </a>
+        <div class="rail-divider"></div>
+        <button class="rail-item"
+                id="rail-btn-searches"
+                onclick="toggleRail('searches')"
+                title="Searches">
+          <i class="fas fa-search"></i>
+          <span class="rail-label">Searches</span>
+        </button>
+        <button class="rail-item"
+                id="rail-btn-manage"
+                onclick="toggleRail('manage')"
+                title="Manage">
+          <i class="fas fa-cog"></i>
+          <span class="rail-label">Manage</span>
+        </button>
+      </div>
+      <div class="rail-bottom">
+        <div class="rail-divider"></div>
+        <a href="#" class="rail-item rail-logout" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="rail-label">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ETM flyout panel -->
+    <div class="luis-flyout" id="luis-flyout">
+
+      <div class="flyout-panel" id="flyout-searches">
+        <div class="flyout-header">Searches</div>
+        <a href="select-keeper-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-user"></i> Keeper search
+        </a>
+        <a href="tag-history.html?etm=true" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-tag"></i> Tag history
+        </a>
+        <a href="recent-orders-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-file-alt"></i> Recent orders
+        </a>
+        <a href="recent-cancellations-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-times-circle"></i> Recent cancellations
+        </a>
+        <a href="recent-recoveries-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-redo"></i> Recent recoveries
+        </a>
+      </div>
+
+      <div class="flyout-panel" id="flyout-manage">
+        <div class="flyout-header">Manage</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-check-circle"></i> Approved tags
+        </a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-user"></i> Users
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Page content -->
+    <main class="rail-content flex-grow-1 py-3 px-4"
+          style="background:#f4f5f6;">
+
+      <div style="background:#fff;border:1px solid #e7eaec;border-radius:8px;padding:20px 22px;">
+        <h5 class="font-weight-bold mb-3">Recent orders</h5>
+        <table class="table table-hover luis-table" id="orders-table">
+          <thead>
+            <tr>
+              <th>Date <i class="fas fa-sort text-muted small"></i></th>
+              <th>Defra ref <i class="fas fa-sort text-muted small"></i></th>
+              <th>Keeper <i class="fas fa-sort text-muted small"></i></th>
+              <th>CPH <i class="fas fa-sort text-muted small"></i></th>
+              <th>Species <i class="fas fa-sort text-muted small"></i></th>
+              <th>Order type <i class="fas fa-sort text-muted small"></i></th>
+              <th class="luis-table__action"></th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+          </tbody>
+        </table>
+        <div style="display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:12px;">
+          <span style="font-size:13px;color:#5f6b72;">Page 1 of 1</span>
+          <button type="button" style="background:#fff;border-radius:4px;padding:6px 12px;font-size:13px;border:1px solid #e3e6e8;color:#b7c0c5;cursor:not-allowed;" disabled><i class="fas fa-chevron-left" style="font-size:10px;margin-right:5px;"></i>Previous</button>
+          <button type="button" style="background:#fff;border-radius:4px;padding:6px 12px;font-size:13px;border:1px solid #e3e6e8;color:#b7c0c5;cursor:not-allowed;" disabled>Next <i class="fas fa-chevron-right" style="font-size:10px;margin-left:5px;"></i></button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="luis-footer">
+    <a href="#">Privacy Policy <i class="fas fa-external-link-alt"></i></a>
+    <a href="#">Cookie Policy <i class="fas fa-external-link-alt"></i></a>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/luis.js"></script>
+  <script src="js/luis-data.js"></script>
+  <script>
+    (function () {
+      var LD = window.LUIS_DATA;
+
+      function fmtDate(iso) {
+        if (!iso) return '';
+        var d = iso.slice(0, 10).split('-');
+        return d[2] + '/' + d[1] + '/' + d[0];
+      }
+
+      function esc(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      var typePill = {
+        conventional: ['Conventional', '#eef1f4', '#0d3349'],
+        eid:          ['EID',          '#eff6ff', '#1d4ed8'],
+        slaughter:    ['Slaughter',    '#fef2f2', '#991b1b'],
+        replica:      ['Replica',      '#f0fdf4', '#15803d']
+      };
+
+      function orderTypePill(type) {
+        var badgeClass = { conventional: 'badge-conventional', eid: 'badge-eid', slaughter: 'badge-slaughter', replica: 'badge-replica' }[type];
+        var s = typePill[type] || [type, '#f0f2f3', '#6b7a83'];
+        if (badgeClass) {
+          return '<span class="' + badgeClass + '">' + esc(s[0]) + '</span>';
+        }
+        return '<span style="display:inline-block;background-color:' + s[1]
+          + ';color:' + s[2]
+          + ';font-size:0.75rem;font-weight:500;padding:2px 8px;border-radius:10px;">'
+          + esc(s[0]) + '</span>';
+      }
+
+      function keeperName(cph) {
+        var k = (LD.keepers || {})[cph];
+        return k ? k.name : cph;
+      }
+
+      var filterCph = new URLSearchParams(location.search).get('cph') || '';
+      var orders = (LD.orders || []).filter(function (o) {
+        return !filterCph || o.cph === filterCph;
+      }).sort(function (a, b) {
+        return a.date > b.date ? -1 : a.date < b.date ? 1 : 0;
+      });
+
+      var tbody = document.getElementById('orders-tbody');
+      if (!tbody) return;
+
+      tbody.innerHTML = orders.map(function (o) {
+        return '<tr>'
+          + '<td>' + fmtDate(o.date) + '</td>'
+          + '<td>' + esc(o.id) + '</td>'
+          + '<td>' + esc(keeperName(o.cph)) + '</td>'
+          + '<td>' + esc(o.cph) + '</td>'
+          + '<td>' + esc(o.species) + '</td>'
+          + '<td>' + orderTypePill(o.type) + '</td>'
+          + '<td class="luis-table__action"><a href="order-view.html?id=' + esc(o.id) + '" class="btn btn-luis btn-sm">View</a></td>'
+          + '</tr>';
+      }).join('');
+
+      document.addEventListener('DOMContentLoaded', function () {
+        toggleRail('searches');
+      });
+    })();
+  </script>
+</body>
+</html>

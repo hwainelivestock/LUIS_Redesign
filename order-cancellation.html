@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancel Order - LUIS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/luis.css">
+  <style>
+    .wiz-card-answered {
+      background:#fff; border:1px solid #dee2e6; border-radius:8px;
+      padding:12px 18px; margin-bottom:10px;
+    }
+    .wiz-card-active {
+      background:#fff; border:2px solid #0d3349; border-radius:8px;
+      padding:22px 24px; margin-bottom:10px;
+    }
+    .wiz-q { font-weight:600; font-size:1rem; color:#0d3349; margin-bottom:16px; }
+    .wiz-option-btn {
+      border:1px solid #0d3349; border-radius:4px; background:#fff; color:#0d3349;
+      padding:8px 24px; font-size:0.875rem; cursor:pointer; margin-right:8px;
+    }
+    .wiz-option-btn:hover { background:#f0f4f7; }
+    .wiz-option-btn:focus { outline:2px solid #c8d400; outline-offset:2px; }
+    .wiz-change-link {
+      font-size:0.8rem; color:#0d3349; text-decoration:underline;
+      background:none; border:none; padding:0; cursor:pointer; white-space:nowrap;
+    }
+    .wiz-info-note {
+      background:#f0f4f7; border-left:3px solid #0d3349; border-radius:4px;
+      padding:10px 14px; font-size:0.82rem; color:#444; margin-bottom:14px;
+    }
+    .wiz-honesty-label {
+      display:flex; align-items:flex-start; gap:10px; cursor:pointer;
+      font-size:0.85rem; color:#444; margin-bottom:16px; line-height:1.5;
+    }
+    .wiz-honesty-label input[type=checkbox] { margin-top:3px; flex-shrink:0; cursor:pointer; }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar (admin) -->
+  <nav class="navbar navbar-dark px-3">
+    <div class="d-flex align-items-center">
+      <span class="navbar-brand mb-0 h5 font-weight-bold">Cancel order</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <a href="#" class="nav-link mr-2"><i class="fas fa-question-circle mr-1"></i>ETM Guidance</a>
+      <a href="#" class="nav-link mr-2" style="color:#c8d400;"><i class="fas fa-user mr-1"></i>As: Allflex UK Group Ltd <i class="fas fa-caret-down"></i></a>
+      <a href="#" class="nav-link mr-3"><i class="fas fa-user mr-1"></i>Brierley Seinen <i class="fas fa-caret-down"></i></a>
+      <img src="images/luis-logo.svg" alt="LUIS - Livestock Unique Identification Service" style="width:44px;height:44px;">
+    </div>
+  </nav>
+
+  <div class="luis-stripe"></div>
+
+  <div class="luis-rail-layout">
+
+    <nav class="luis-rail" id="luis-rail">
+      <div class="rail-top">
+        <a href="select-manufacturer.html" class="rail-item rail-etm" title="Login as ETM">
+          <i class="fas fa-exchange-alt"></i><span class="rail-label">ETM Login</span>
+        </a>
+        <a href="index.html" class="rail-item" title="Home">
+          <i class="fas fa-home"></i><span class="rail-label">Home</span>
+        </a>
+        <div class="rail-divider"></div>
+        <button class="rail-item active" id="rail-btn-searches" onclick="toggleRail('searches')" title="Searches">
+          <i class="fas fa-search"></i><span class="rail-label">Searches</span>
+        </button>
+        <button class="rail-item" id="rail-btn-tagging" onclick="toggleRail('tagging')" title="Tagging">
+          <i class="fas fa-tags"></i><span class="rail-label">Tagging</span>
+        </button>
+        <button class="rail-item" id="rail-btn-support" onclick="toggleRail('support')" title="Support">
+          <i class="fas fa-life-ring"></i><span class="rail-label">Support</span>
+        </button>
+        <button class="rail-item" id="rail-btn-users" onclick="toggleRail('users')" title="User management">
+          <i class="fas fa-users"></i><span class="rail-label">Users</span>
+        </button>
+      </div>
+      <div class="rail-bottom">
+        <div class="rail-divider"></div>
+        <a href="#" class="rail-item rail-logout" title="Logout">
+          <i class="fas fa-sign-out-alt"></i><span class="rail-label">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="luis-flyout" id="luis-flyout">
+      <div class="flyout-panel" id="flyout-searches">
+        <div class="flyout-header">Searches</div>
+        <a href="keeper-search.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-user"></i> Keeper search</a>
+        <a href="herd-search.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-tractor"></i> Herd search</a>
+        <a href="tag-history.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-tag"></i> Tag history</a>
+        <a href="orders-search.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-file-alt"></i> Orders</a>
+      </div>
+      <div class="flyout-panel" id="flyout-tagging">
+        <div class="flyout-header">Tagging</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-check-circle"></i> Approved tags</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-tag"></i> Tag classes</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-tools"></i> Tag constructions</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-check"></i> Valid tag combinations</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-industry"></i> Manufacturers</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-globe"></i> Manf IP addresses</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-paper-plane"></i> API access requests</a>
+      </div>
+      <div class="flyout-panel" id="flyout-support">
+        <div class="flyout-header">Support</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-comment-alt"></i> Service message</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-question-circle"></i> FAQs</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-calendar-times"></i> End date reasons</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-tools"></i> Support tasks</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-file-alt"></i> fSeries reports</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-list"></i> Lookups</a>
+      </div>
+      <div class="flyout-panel" id="flyout-users">
+        <div class="flyout-header">User management</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-user"></i> Users</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-shield-alt"></i> Roles</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-eye"></i> Access log</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-clipboard"></i> Audit log</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-user-cog"></i> Service accounts</a>
+      </div>
+    </div>
+
+    <main class="rail-content flex-grow-1 py-3 px-4" style="background:#f4f5f6;">
+      <div id="cancel-root"></div>
+    </main>
+
+  </div>
+
+  <footer class="luis-footer">
+    <a href="#">Privacy Policy <i class="fas fa-external-link-alt"></i></a>
+    <a href="#">Cookie Policy <i class="fas fa-external-link-alt"></i></a>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/luis.js"></script>
+  <script src="js/luis-data.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', function () { toggleRail('searches'); });</script>
+  <script>
+(function () {
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    var d = iso.slice(0, 10).split('-');
+    return d[2] + '/' + d[1] + '/' + d[0];
+  }
+
+  // ── Order and keeper lookup ───────────────────────────────────────────────────
+
+  var LD      = window.LUIS_DATA;
+  var qp      = new URLSearchParams(window.location.search);
+  var orderId = qp.get('orderId') || '5001104';
+  var order   = LD.getOrderById(orderId);
+  var root    = document.getElementById('cancel-root');
+
+  if (!order) {
+    root.innerHTML = '<p class="text-danger mt-3">Order not found: ' + esc(orderId) + '</p>';
+    return;
+  }
+
+  var keeper = LD.getKeeperByCph(order.cph) || {};
+
+  // ── Derive primary / secondary lines + tag lists ──────────────────────────────
+
+  var primaryLine   = null;
+  var secondaryLine = null;
+  var primaryTags   = [];
+  var secondaryTags = [];
+
+  (order.lines || []).forEach(function (l) {
+    if (l.row === 'primary'   && !primaryLine)   primaryLine   = l;
+    if (l.row === 'secondary' && !secondaryLine) secondaryLine = l;
+  });
+
+  if (primaryLine) {
+    for (var n = primaryLine.tagStart; n <= primaryLine.tagEnd; n++) {
+      primaryTags.push(n);
+    }
+  }
+  if (secondaryLine) {
+    for (var n = secondaryLine.tagStart; n <= secondaryLine.tagEnd; n++) {
+      secondaryTags.push(n);
+    }
+  }
+
+  // ── State ────────────────────────────────────────────────────────────────────
+
+  var state = {
+    flow:              [],
+    currentStep:       'Q1',
+    selectedPrimary:   new Set(),
+    selectedSecondary: new Set(),
+    honorChecked:      false,
+  };
+
+  // ── Step definitions ─────────────────────────────────────────────────────────
+
+  var STEPS = {
+    Q1: {
+      q: 'Have the tags been dispatched?',
+      type: 'yesno',
+      nextFor: { yes: 'Q2', no: 'DECL_NODISPATCH' }
+    },
+    Q2: {
+      q: 'Were all tags lost in transit?',
+      type: 'yesno',
+      nextFor: { yes: 'DECL_ALLTRANSIT', no: 'Q3' }
+    },
+    Q3: {
+      q: 'Have the tags been:',
+      type: 'choice',
+      options: [
+        { value: 'lost',     label: 'Lost'     },
+        { value: 'stolen',   label: 'Stolen'   },
+        { value: 'returned', label: 'Returned' }
+      ],
+      nextFor: { lost: 'Q4_LOST', stolen: 'Q4_STOLEN', returned: 'Q4_RETURNED' }
+    },
+    Q4_LOST: {
+      q: 'Were all tags lost?',
+      type: 'yesno',
+      nextFor: { yes: 'DECL_ALLLOST', no: 'TAGS' }
+    },
+    Q4_STOLEN: {
+      q: 'Were all tags stolen?',
+      type: 'yesno',
+      nextFor: { yes: 'DECL_STOLEN', no: 'TAGS' }
+    },
+    Q4_RETURNED: {
+      q: 'Were all tags returned?',
+      type: 'yesno',
+      nextFor: { yes: 'DECL_RETURNED', no: 'TAGS' }
+    },
+    TAGS: {
+      q: 'Select the tags',
+      type: 'tagpicker'
+    }
+  };
+
+  // ── Helper: read Q3 verb from flow ────────────────────────────────────────────
+
+  function getQ3Word() {
+    for (var i = 0; i < state.flow.length; i++) {
+      if (state.flow[i].step === 'Q3') return state.flow[i].answer;
+    }
+    return 'lost';
+  }
+
+  // ── Shared declaration fragments ──────────────────────────────────────────────
+
+  var REASON_OPTIONS = [
+    'Wrong order',
+    'Manufacturer error',
+    'Not required',
+    'Incorrectly printed tag',
+    'Incorrect tag colour ordered'
+  ];
+
+  function reasonDropdown(id) {
+    var opts = REASON_OPTIONS.map(function (r) {
+      return '<option value="' + esc(r) + '">' + esc(r) + '</option>';
+    }).join('');
+    return '<div style="margin-bottom:16px;">'
+      + '<label style="font-size:0.82rem;font-weight:600;color:#444;display:block;margin-bottom:5px;">Reason for cancellation</label>'
+      + '<select class="form-control form-control-sm" style="max-width:320px;" id="reason-' + id + '">'
+      + '<option value="" disabled selected>Select a reason</option>'
+      + opts
+      + '</select>'
+      + '</div>';
+  }
+
+  function honorCheck(id) {
+    return '<label class="wiz-honesty-label">'
+      + '<input type="checkbox" onchange="window.wizHonor(\'' + id + '\',this.checked)">'
+      + '<span>I confirm the information provided is true and accurate to the best of my knowledge.</span>'
+      + '</label>';
+  }
+
+  function contactNote() {
+    return '<div class="wiz-info-note">'
+      + '<i class="fas fa-info-circle mr-1" style="color:#0d3349;"></i>'
+      + 'Please <a href="#" style="color:#0d3349;font-weight:500;">contact the LUIS support team</a> for further assistance.'
+      + '</div>';
+  }
+
+  function reorderBlock(id) {
+    return '<div style="margin-bottom:16px;">'
+      + '<p style="font-size:0.85rem;font-weight:600;color:#444;margin-bottom:8px;">Would you like to re-order these tags?</p>'
+      + '<div style="display:flex;gap:20px;">'
+      + '<label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;">'
+      + '<input type="radio" name="reorder-' + id + '" value="yes" onchange="window.wizReorder(\'' + id + '\',true)"> Yes'
+      + '</label>'
+      + '<label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;">'
+      + '<input type="radio" name="reorder-' + id + '" value="no"  onchange="window.wizReorder(\'' + id + '\',false)"> No'
+      + '</label>'
+      + '</div>'
+      + '<div id="reorder-ref-' + id + '" style="display:none;margin-top:10px;">'
+      + '<label style="font-size:0.82rem;font-weight:600;color:#444;display:block;margin-bottom:5px;">Order reference</label>'
+      + '<input type="text" class="form-control form-control-sm" style="max-width:240px;" placeholder="Enter reference number">'
+      + '</div>'
+      + '</div>';
+  }
+
+  function cancelBtn(id, wired) {
+    var handler = wired ? 'window.wizSubmit(\'wired\')' : 'window.wizSubmit(\'' + id + '\')';
+    return '<button type="button" class="btn btn-danger" id="cancel-btn-' + id + '" disabled onclick="' + handler + '">'
+      + 'Cancel order'
+      + '</button>';
+  }
+
+  // ── Declaration renders ───────────────────────────────────────────────────────
+
+  function renderDeclNoDispatch() {
+    return '<p class="wiz-q">Declaration</p>'
+      + '<p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px;">The tags have not been dispatched.</p>'
+      + reasonDropdown('nodispatch')
+      + honorCheck('nodispatch')
+      + cancelBtn('nodispatch', false);
+  }
+
+  function renderDeclAllTransit() {
+    return '<p class="wiz-q">Declaration</p>'
+      + '<p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px;">All tags were lost in transit.</p>'
+      + honorCheck('alltransit')
+      + contactNote()
+      + reorderBlock('alltransit')
+      + '<div style="margin-top:18px;">' + cancelBtn('alltransit', false) + '</div>';
+  }
+
+  function renderDeclStolen() {
+    return '<p class="wiz-q">Declaration</p>'
+      + '<p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px;">The tags have been stolen.</p>'
+      + honorCheck('stolen')
+      + '<div class="wiz-info-note">'
+      + '<i class="fas fa-info-circle mr-1" style="color:#0d3349;"></i>'
+      + 'Please <a href="#" style="color:#0d3349;font-weight:500;">contact the LUIS support team</a>. '
+      + 'These tags will be made obsolete on the LUIS system.'
+      + '</div>'
+      + cancelBtn('stolen', false);
+  }
+
+  function renderDeclReturned() {
+    return '<p class="wiz-q">Declaration</p>'
+      + '<p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px;">The tags have been returned.</p>'
+      + reasonDropdown('returned')
+      + honorCheck('returned')
+      + cancelBtn('returned', false);
+  }
+
+  function renderDeclAllLost() {
+    return '<p class="wiz-q">Declaration</p>'
+      + '<p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px;">All tags have been lost.</p>'
+      + honorCheck('alllost')
+      + contactNote()
+      + reorderBlock('alllost')
+      + '<div style="margin-top:18px;">' + cancelBtn('alllost', false) + '</div>';
+  }
+
+  function renderDeclPartial() {
+    var pList      = Array.from(state.selectedPrimary).sort(function (a, b) { return a - b; });
+    var sList      = Array.from(state.selectedSecondary).sort(function (a, b) { return a - b; });
+    var totalCount = pList.length + sList.length;
+    var canSubmit  = state.honorChecked && totalCount > 0;
+    var pPrefix    = primaryLine   ? primaryLine.tagPrefix   : '';
+    var sPrefix    = secondaryLine ? secondaryLine.tagPrefix : pPrefix;
+
+    var tagSummary = '';
+    if (pList.length) {
+      tagSummary += '<div style="margin-bottom:6px;">'
+        + '<span style="font-size:0.72rem;color:#888;font-weight:600;display:block;margin-bottom:2px;">Primary</span>'
+        + '<span style="font-family:monospace;font-size:0.82rem;color:#0d3349;">'
+        + pList.map(function (n) { return pPrefix + ' ' + n; }).join(', ')
+        + '</span></div>';
+    }
+    if (sList.length) {
+      tagSummary += '<div>'
+        + '<span style="font-size:0.72rem;color:#888;font-weight:600;display:block;margin-bottom:2px;">Secondary</span>'
+        + '<span style="font-family:monospace;font-size:0.82rem;color:#0d3349;">'
+        + sList.map(function (n) { return sPrefix + ' ' + n; }).join(', ')
+        + '</span></div>';
+    }
+
+    return '<p class="wiz-q">Declaration</p>'
+      + '<div style="background:#f9fafb;border-radius:6px;padding:11px 14px;margin-bottom:14px;">'
+      + '<p style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:#888;font-weight:600;margin-bottom:8px;">Tags to be cancelled (' + totalCount + ')</p>'
+      + tagSummary
+      + '</div>'
+      + honorCheck('partial')
+      + contactNote()
+      + '<button type="button" class="btn btn-danger" id="cancel-btn-partial"'
+      + (canSubmit ? '' : ' disabled')
+      + ' onclick="window.wizSubmit(\'wired\')">'
+      + 'Cancel order'
+      + '</button>';
+  }
+
+  // ── Tag picker ────────────────────────────────────────────────────────────────
+
+  function renderTagPicker() {
+    var word    = getQ3Word();
+    var pCount  = state.selectedPrimary.size;
+    var sCount  = state.selectedSecondary.size;
+    var count   = pCount + sCount;
+    var total   = primaryTags.length + secondaryTags.length;
+    var allPChk = primaryTags.length > 0   && pCount === primaryTags.length;
+    var allSChk = secondaryTags.length > 0 && sCount === secondaryTags.length;
+
+    var rows = primaryTags.map(function (tagNum) {
+      var pChk = state.selectedPrimary.has(tagNum)   ? ' checked' : '';
+      var sChk = state.selectedSecondary.has(tagNum) ? ' checked' : '';
+      return '<tr>'
+        + '<td style="font-family:monospace;font-size:0.8rem;">'
+        + esc(primaryLine.tagPrefix) + '&nbsp;' + tagNum
+        + '</td>'
+        + '<td style="text-align:center;">'
+        + '<input type="checkbox"' + pChk + ' onchange="window.tagToggle(' + tagNum + ',\'primary\',this.checked)">'
+        + '</td>'
+        + '<td style="text-align:center;">'
+        + (secondaryLine
+            ? '<input type="checkbox"' + sChk + ' onchange="window.tagToggle(' + tagNum + ',\'secondary\',this.checked)">'
+            : '<input type="checkbox" disabled style="opacity:0.25;" title="No secondary line on this order">')
+        + '</td>'
+        + '</tr>';
+    }).join('');
+
+    return '<p class="wiz-q">Select the ' + word + ' tags</p>'
+      + '<p style="font-size:0.82rem;color:#6b7280;margin-bottom:14px;">'
+      + 'Select each tag that was ' + word + '. Use the column header checkboxes to select all in a row.'
+      + '</p>'
+      + '<div style="overflow-x:auto;">'
+      + '<table class="table table-sm luis-table" style="max-width:420px;margin-bottom:8px;">'
+      + '<thead><tr>'
+      + '<th style="font-size:0.78rem;">Tag number</th>'
+      + '<th style="text-align:center;font-size:0.78rem;">Primary<br>'
+      + '<input type="checkbox" id="all-primary-chk"' + (allPChk ? ' checked' : '')
+      + ' onchange="window.tagToggleAll(\'primary\',this.checked)" title="Select / deselect all primary">'
+      + '</th>'
+      + '<th style="text-align:center;font-size:0.78rem;">'
+      + (secondaryLine ? '' : '<span style="opacity:0.4;">') + 'Secondary<br>'
+      + (secondaryLine
+          ? '<input type="checkbox" id="all-secondary-chk"' + (allSChk ? ' checked' : '')
+            + ' onchange="window.tagToggleAll(\'secondary\',this.checked)" title="Select / deselect all secondary">'
+          : '<input type="checkbox" disabled style="opacity:0.25;" title="No secondary line on this order">')
+      + (secondaryLine ? '' : '</span>')
+      + '</th>'
+      + '</tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table>'
+      + '</div>'
+      + '<p id="tags-counter" style="font-size:0.82rem;color:#5f6b72;margin-bottom:16px;">'
+      + count + ' of ' + total + ' tag' + (total !== 1 ? 's' : '') + ' selected'
+      + '</p>'
+      + '<button type="button" class="btn btn-luis" id="tags-next-btn"'
+      + (count === 0 ? ' disabled' : '')
+      + ' onclick="window.tagsNext()">Next</button>';
+  }
+
+  // ── Active card dispatcher ────────────────────────────────────────────────────
+
+  function renderActiveCard(step) {
+    var inner;
+    switch (step) {
+      case 'DECL_NODISPATCH': inner = renderDeclNoDispatch(); break;
+      case 'DECL_ALLTRANSIT': inner = renderDeclAllTransit(); break;
+      case 'DECL_STOLEN':     inner = renderDeclStolen();     break;
+      case 'DECL_RETURNED':   inner = renderDeclReturned();   break;
+      case 'DECL_ALLLOST':    inner = renderDeclAllLost();    break;
+      case 'DECL_PARTIAL':    inner = renderDeclPartial();    break;
+      default: {
+        var def = STEPS[step];
+        if (!def) return '';
+        if (def.type === 'tagpicker') {
+          return '<div class="wiz-card-active">' + renderTagPicker() + '</div>';
+        }
+        var opts = '';
+        if (def.type === 'yesno') {
+          opts = '<button class="wiz-option-btn" onclick="window.wizAnswer(\'' + step + '\',\'yes\',\'Yes\')">Yes</button>'
+               + '<button class="wiz-option-btn" onclick="window.wizAnswer(\'' + step + '\',\'no\',\'No\')">No</button>';
+        } else if (def.type === 'choice') {
+          opts = def.options.map(function (o) {
+            return '<button class="wiz-option-btn" onclick="window.wizAnswer(\'' + step + '\',\'' + o.value + '\',\'' + o.label + '\')">' + esc(o.label) + '</button>';
+          }).join('');
+        }
+        inner = '<p class="wiz-q">' + esc(def.q) + '</p><div>' + opts + '</div>';
+      }
+    }
+    return '<div class="wiz-card-active">' + inner + '</div>';
+  }
+
+  // ── Answered card ─────────────────────────────────────────────────────────────
+
+  function renderAnswered(step, displayAnswer) {
+    var q = step === 'TAGS'
+      ? 'Select the ' + getQ3Word() + ' tags'
+      : (STEPS[step] && STEPS[step].q) || step;
+    return '<div class="wiz-card-answered">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<div>'
+      + '<span style="font-size:0.74rem;color:#6b7280;display:block;margin-bottom:2px;">' + esc(q) + '</span>'
+      + '<span style="font-weight:600;font-size:0.9rem;color:#0d3349;">' + esc(displayAnswer) + '</span>'
+      + '</div>'
+      + '<button class="wiz-change-link" onclick="window.wizChange(\'' + step + '\')">Change</button>'
+      + '</div>'
+      + '</div>';
+  }
+
+  // ── Render whole wizard column ────────────────────────────────────────────────
+
+  function renderWizard() {
+    var html = '';
+    state.flow.forEach(function (item) { html += renderAnswered(item.step, item.displayAnswer); });
+    html += renderActiveCard(state.currentStep);
+    document.getElementById('wizard-steps').innerHTML = html;
+  }
+
+  // ── Summary card ──────────────────────────────────────────────────────────────
+
+  function renderSummary() {
+    var lineItems = (order.lines || []).map(function (l) {
+      var range = esc(l.tagPrefix) + '&nbsp;' + l.tagStart + '–' + l.tagEnd;
+      return '<div style="background:#f9fafb;border-radius:6px;padding:9px 12px;margin-bottom:8px;font-size:0.82rem;">'
+        + '<div style="font-weight:600;color:#0d3349;margin-bottom:2px;">' + esc(l.product) + '</div>'
+        + '<div style="color:#6b7280;">'
+        + esc(l.row.charAt(0).toUpperCase() + l.row.slice(1))
+        + ' &nbsp;&middot;&nbsp; ' + range
+        + ' &nbsp;&middot;&nbsp; Qty:&nbsp;' + l.qty
+        + '&nbsp;&nbsp;<span style="display:inline-block;width:9px;height:9px;border-radius:50%;'
+        + 'background:' + esc(l.colourHex || '#ccc') + ';vertical-align:middle;"></span>'
+        + '&nbsp;' + esc(l.colour || '')
+        + '</div>'
+        + '</div>';
+    }).join('');
+
+    return '<div style="background:#fff;border:1px solid #e7eaec;border-radius:8px;padding:20px 22px;position:sticky;top:16px;">'
+      + '<p style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#888;font-weight:600;margin-bottom:6px;">Cancellation for</p>'
+      + '<h5 style="font-weight:700;color:#0d3349;margin-bottom:16px;">Order ' + esc(order.id) + '</h5>'
+      + '<table style="width:100%;font-size:0.84rem;border-collapse:collapse;margin-bottom:14px;">'
+      + '<tr><td style="color:#6b7280;padding:3px 0;padding-right:14px;white-space:nowrap;">Date</td>'
+      +     '<td style="font-weight:600;color:#0d3349;">' + fmtDate(order.date) + '</td></tr>'
+      + '<tr><td style="color:#6b7280;padding:3px 0;padding-right:14px;">Species</td>'
+      +     '<td style="font-weight:600;color:#0d3349;">' + esc(order.species) + '</td></tr>'
+      + '<tr><td style="color:#6b7280;padding:3px 0;padding-right:14px;">CPH</td>'
+      +     '<td style="font-weight:600;color:#0d3349;">' + esc(order.cph) + '</td></tr>'
+      + '<tr><td style="color:#6b7280;padding:3px 0;padding-right:14px;">Herd</td>'
+      +     '<td style="font-weight:600;color:#0d3349;">' + esc(order.herd) + '</td></tr>'
+      + '</table>'
+      + '<hr style="margin:14px 0;">'
+      + '<p style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:#888;font-weight:600;margin-bottom:10px;">Tag lines</p>'
+      + lineItems
+      + '</div>';
+  }
+
+  // ── Window-scoped event handlers ──────────────────────────────────────────────
+
+  window.wizAnswer = function (step, answer, displayAnswer) {
+    state.flow.push({ step: step, answer: answer, displayAnswer: displayAnswer });
+    var def = STEPS[step];
+    state.currentStep = (def && def.nextFor && def.nextFor[answer]) || 'Q1';
+    renderWizard();
+  };
+
+  window.wizChange = function (step) {
+    var idx = -1;
+    for (var i = 0; i < state.flow.length; i++) {
+      if (state.flow[i].step === step) { idx = i; break; }
+    }
+    if (idx >= 0) state.flow = state.flow.slice(0, idx);
+    state.currentStep = step;
+    if (step !== 'TAGS') {
+      state.selectedPrimary   = new Set();
+      state.selectedSecondary = new Set();
+    }
+    state.honorChecked = false;
+    renderWizard();
+  };
+
+  window.tagToggle = function (tagNum, row, checked) {
+    if (row === 'primary') {
+      if (checked) state.selectedPrimary.add(tagNum);
+      else         state.selectedPrimary.delete(tagNum);
+    } else {
+      if (checked) state.selectedSecondary.add(tagNum);
+      else         state.selectedSecondary.delete(tagNum);
+    }
+    updateTagsUI();
+  };
+
+  window.tagToggleAll = function (row, checked) {
+    if (row === 'primary') {
+      if (checked) primaryTags.forEach(function (n) { state.selectedPrimary.add(n); });
+      else         state.selectedPrimary.clear();
+    } else {
+      if (checked) secondaryTags.forEach(function (n) { state.selectedSecondary.add(n); });
+      else         state.selectedSecondary.clear();
+    }
+    updateTagsUI();
+  };
+
+  function updateTagsUI() {
+    var pCount = state.selectedPrimary.size;
+    var sCount = state.selectedSecondary.size;
+    var count  = pCount + sCount;
+    var total  = primaryTags.length + secondaryTags.length;
+    var el;
+    el = document.getElementById('tags-counter');
+    if (el) el.textContent = count + ' of ' + total + ' tag' + (total !== 1 ? 's' : '') + ' selected';
+    el = document.getElementById('tags-next-btn');
+    if (el) el.disabled = count === 0;
+    el = document.getElementById('all-primary-chk');
+    if (el) el.checked = (primaryTags.length > 0 && pCount === primaryTags.length);
+    el = document.getElementById('all-secondary-chk');
+    if (el) el.checked = (secondaryTags.length > 0 && sCount === secondaryTags.length);
+    var stepsEl = document.getElementById('wizard-steps');
+    if (stepsEl) {
+      var tbody = stepsEl.querySelector('tbody');
+      if (tbody) {
+        var rows = tbody.querySelectorAll('tr');
+        rows.forEach(function (tr, i) {
+          var tagNum = primaryTags[i];
+          if (tagNum === undefined) return;
+          var inputs = tr.querySelectorAll('input[type="checkbox"]');
+          if (inputs[0] && !inputs[0].disabled) inputs[0].checked = state.selectedPrimary.has(tagNum);
+          if (inputs[1] && !inputs[1].disabled) inputs[1].checked = state.selectedSecondary.has(tagNum);
+        });
+      }
+    }
+  }
+
+  window.tagsNext = function () {
+    var count = state.selectedPrimary.size + state.selectedSecondary.size;
+    if (count === 0) return;
+    var total = primaryTags.length + secondaryTags.length;
+    state.flow.push({
+      step:          'TAGS',
+      answer:        String(count),
+      displayAnswer: count + ' of ' + total + ' tag' + (count !== 1 ? 's' : '') + ' selected'
+    });
+    state.currentStep  = 'DECL_PARTIAL';
+    state.honorChecked = false;
+    renderWizard();
+  };
+
+  window.wizHonor = function (id, checked) {
+    state.honorChecked = checked;
+    var btn = document.getElementById('cancel-btn-' + id);
+    if (!btn) return;
+    if (id === 'partial') {
+      var totalSel = state.selectedPrimary.size + state.selectedSecondary.size;
+      btn.disabled = !(checked && totalSel > 0);
+    } else {
+      btn.disabled = !checked;
+    }
+  };
+
+  window.wizReorder = function (id, show) {
+    var el = document.getElementById('reorder-ref-' + id);
+    if (el) el.style.display = show ? '' : 'none';
+  };
+
+  function buildRanges(sortedNums, prefix) {
+    var ranges = [];
+    if (!sortedNums.length) return ranges;
+    var start = sortedNums[0], prev = sortedNums[0];
+    for (var i = 1; i < sortedNums.length; i++) {
+      if (sortedNums[i] !== prev + 1) {
+        ranges.push({ tagPrefix: prefix, start: start, end: prev });
+        start = sortedNums[i];
+      }
+      prev = sortedNums[i];
+    }
+    ranges.push({ tagPrefix: prefix, start: start, end: prev });
+    return ranges;
+  }
+
+  window.wizSubmit = function (path) {
+    if (path === 'wired') {
+      var lines = [];
+      if (primaryLine && state.selectedPrimary.size > 0) {
+        var pTags = Array.from(state.selectedPrimary).sort(function (a, b) { return a - b; });
+        lines.push({
+          row:       'primary',
+          product:   primaryLine.product,
+          qty:       pTags.length,
+          tagRanges: buildRanges(pTags, primaryLine.tagPrefix)
+        });
+      }
+      if (secondaryLine && state.selectedSecondary.size > 0) {
+        var sTags = Array.from(state.selectedSecondary).sort(function (a, b) { return a - b; });
+        lines.push({
+          row:       'secondary',
+          product:   secondaryLine.product,
+          qty:       sTags.length,
+          tagRanges: buildRanges(sTags, secondaryLine.tagPrefix)
+        });
+      }
+      if (!lines.length) return;
+      var cancellation = {
+        id:          '40014',
+        orderId:     order.id,
+        cancelledOn: new Date().toISOString(),
+        cancelledBy: 'TerryField',
+        reason:      'Lost',
+        lines:       lines
+      };
+      try { sessionStorage.setItem('luisDemoCancellation', JSON.stringify(cancellation)); } catch (e) {}
+      window.location.href = 'order-view.html?id=' + encodeURIComponent(order.id);
+    } else {
+      console.log('[LUIS cancel stub] inert path submitted:', path);
+    }
+  };
+
+  // ── Bootstrap render ──────────────────────────────────────────────────────────
+
+  var addr = (keeper.address || []).filter(Boolean).join(', ');
+  var sub  = [keeper.name, addr, keeper.telephone, keeper.mobile].filter(Boolean).join(' · ');
+  var contextCard =
+    '<div class="context-card mb-3">'
+    +   '<div class="context-card__top">'
+    +     '<div class="context-card__identity">'
+    +       '<div class="context-card__eyebrow">Cancelling for</div>'
+    +       '<div class="context-card__name-row">'
+    +         '<span class="context-card__name">' + esc(keeper.name || order.cph) + '</span>'
+    +         '<span class="context-card__cph-pill">CPH ' + esc(order.cph) + '</span>'
+    +       '</div>'
+    +       '<div class="context-card__details">' + esc(sub) + '</div>'
+    +     '</div>'
+    +   '</div>'
+    + '</div>';
+
+  root.innerHTML = contextCard
+    + '<div style="display:grid;grid-template-columns:1fr 2fr;gap:20px;align-items:start;">'
+    + '<div>' + renderSummary() + '</div>'
+    + '<div id="wizard-steps"></div>'
+    + '</div>';
+
+  renderWizard();
+
+})();
+  </script>
+</body>
+</html>

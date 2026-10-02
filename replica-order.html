@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Replica tags – LUIS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/luis.css">
+  <style>
+    .tag-badge {
+      width: 26px; height: 26px; border-radius: 5px;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .colour-swatch {
+      width: 14px; height: 14px; border-radius: 3px;
+      border: 1px solid #dee2e6; display: inline-block; flex-shrink: 0;
+    }
+    #replica-grid-table thead th {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+      color: #6c757d; font-weight: 600; border-top: 0; padding-bottom: 6px;
+    }
+    .row-type-chip {
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      background: #eef1f2; border: 1px solid #d7dbde; border-radius: 3px;
+      font-size: 11px; color: #6b7a83; font-weight: 500;
+      margin-left: 6px; vertical-align: middle;
+    }
+    .ghost-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: #0d3349; font-size: 12px; font-weight: 500;
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    .ghost-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .tag-picker-row { cursor: pointer; }
+    .tag-picker-row:hover { background: #f5f7f8; }
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar (ETM variant) -->
+  <nav class="navbar navbar-dark px-3">
+    <div class="d-flex align-items-center">
+      <span class="navbar-brand mb-0 h5 font-weight-bold" id="nav-title">Order replica tags</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-question-circle mr-1"></i>ETM Guidance
+      </a>
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-info-circle mr-1"></i>FAQs
+      </a>
+      <a href="#" class="nav-link mr-3" style="color:#c8d400;">
+        <i class="fas fa-user mr-1"></i>As: Allflex UK Group Ltd
+        <i class="fas fa-caret-down ml-1"></i>
+      </a>
+      <img src="images/luis-logo.svg" alt="LUIS – Livestock Unique Identification Service" style="width:44px;height:44px;">
+    </div>
+  </nav>
+
+  <div class="luis-stripe"></div>
+
+  <div class="luis-rail-layout">
+
+    <nav class="luis-rail" id="luis-rail">
+      <div class="rail-top">
+        <a href="index.html"
+           class="rail-item rail-etm"
+           title="Return to admin dashboard">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="rail-label">Return to Admin</span>
+        </a>
+        <a href="etm-dashboard.html"
+           class="rail-item active"
+           title="Dashboard">
+          <i class="fas fa-th-large"></i>
+          <span class="rail-label">Dashboard</span>
+        </a>
+        <div class="rail-divider"></div>
+        <button class="rail-item"
+                id="rail-btn-searches"
+                onclick="toggleRail('searches')"
+                title="Searches">
+          <i class="fas fa-search"></i>
+          <span class="rail-label">Searches</span>
+        </button>
+        <button class="rail-item"
+                id="rail-btn-manage"
+                onclick="toggleRail('manage')"
+                title="Manage">
+          <i class="fas fa-cog"></i>
+          <span class="rail-label">Manage</span>
+        </button>
+      </div>
+      <div class="rail-bottom">
+        <div class="rail-divider"></div>
+        <a href="#" class="rail-item rail-logout" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="rail-label">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ETM flyout panel -->
+    <div class="luis-flyout" id="luis-flyout">
+
+      <div class="flyout-panel" id="flyout-searches">
+        <div class="flyout-header">Searches</div>
+        <a href="select-keeper-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-user"></i> Keeper search
+        </a>
+        <a href="tag-history.html?etm=true" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-tag"></i> Tag history
+        </a>
+        <a href="recent-orders-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-file-alt"></i> Recent orders
+        </a>
+        <a href="recent-cancellations-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-times-circle"></i> Recent cancellations
+        </a>
+        <a href="recent-recoveries-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-redo"></i> Recent recoveries
+        </a>
+      </div>
+
+      <div class="flyout-panel" id="flyout-manage">
+        <div class="flyout-header">Manage</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-check-circle"></i> Approved tags
+        </a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-user"></i> Users
+        </a>
+      </div>
+
+    </div>
+
+    <main class="rail-content flex-grow-1 py-3 px-4" style="background:#f4f5f6;">
+      <div id="replica-root"></div>
+    </main>
+
+  </div>
+
+  <footer class="luis-footer">
+    <a href="#">Privacy Policy <i class="fas fa-external-link-alt"></i></a>
+    <a href="#">Cookie Policy <i class="fas fa-external-link-alt"></i></a>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/luis.js"></script>
+  <script src="js/luis-data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () { toggleRail('searches'); });
+  </script>
+  <script>
+  (function () {
+
+    /* ── Colour hex — mirrors getTagColourOptions internal map ── */
+    var COLOUR_HEX = {
+      Yellow: '#f2d024', Blue:   '#2f6fb0', Green:  '#4a9b4a', Orange: '#e08a2b',
+      Pink:   '#d46a9c', Purple: '#7d5aa8', Red:    '#c0392b', White:  '#ffffff',
+      Brown:  '#8a5a2b'
+    };
+
+    /* ── URL params ── */
+    var params  = new URLSearchParams(location.search);
+    var cph     = params.get('cph')     || '';
+    var herd    = params.get('herd')    || '';
+    var species = params.get('species') || '';
+
+    /* ── Data refs ── */
+    var OT        = window.LUIS_DATA.orderTypes || {};
+    var OB        = window.LUIS_DATA.orderBadge || {};
+    var keeper    = window.LUIS_DATA.getKeeperByCph(cph);
+    var orderType = OT.replica || {};
+    var root      = document.getElementById('replica-root');
+
+    /* ── Helpers ── */
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function enc(s) { return encodeURIComponent(String(s || '')); }
+
+    /* ── Defaults — always previewable ── */
+    if (!keeper)  { cph = '44/099/0001'; keeper = window.LUIS_DATA.getKeeperByCph(cph); }
+    if (!species) { species = 'Cattle'; }
+    if (!herd && keeper && keeper.herds && keeper.herds.length) {
+      herd = String(keeper.herds[0].herd);
+    }
+
+    var speciesLower = species.toLowerCase();
+    var rows = (orderType.rows || {})[speciesLower] || ['primary', 'secondary'];
+
+    /* ── Row label, chip, and stub product sets ── */
+    var ROW_LABEL    = { primary: 'Primary', secondary: 'Secondary', eid: 'EID', nonEid: 'Non-EID' };
+    var ROW_CHIP     = { eid: 'Primary', nonEid: 'Primary' }; // cattle rows have no chip
+
+    /* ── Stub tag list for cattle picker ── */
+    // TODO — replace with herd's registered animals from the animals model
+    var STUB_TAGS = (function () {
+      var list = [];
+      for (var i = 0; i < 12; i++) { list.push('UK' + herd + ' ' + (100300 + i * 7)); }
+      return list;
+    })();
+
+    /* ── Page state ── */
+    var replicas = [];
+
+    /* ── Initial render ── */
+    root.innerHTML = buildContextCard() + buildMainCard();
+
+    document.getElementById('nav-title').textContent = 'Order replica tags: ' + species;
+    wireColourSelects();
+    if (species === 'Cattle') wireCattlePicker();
+
+    /* ═══════════════════════ BUILDER FUNCTIONS ═══════════════════════ */
+
+    function buildContextCard() {
+      var addr = (keeper.address || []).filter(Boolean).join(', ');
+      var sub  = [keeper.name, addr, keeper.telephone, keeper.mobile].filter(Boolean).join(' · ');
+      return '<div class="context-card mb-3">'
+        + '<div class="context-card__top">'
+        +   '<div class="context-card__identity">'
+        +     '<div class="context-card__eyebrow">Ordering for</div>'
+        +     '<div class="context-card__name-row">'
+        +       '<span class="context-card__name">' + esc(keeper.keeperName || keeper.name) + '</span>'
+        +       '<span class="context-card__cph-pill">CPH ' + esc(cph) + '</span>'
+        +     '</div>'
+        +     '<div class="context-card__details">' + esc(sub) + '</div>'
+        +   '</div>'
+        +   '<a href="select-species.html?cph=' + enc(cph) + '" class="context-card__change-keeper">'
+        +     '<i class="fas fa-exchange-alt"></i> Change keeper</a>'
+        + '</div>'
+        + '</div>';
+    }
+
+    /* ── One main card: title + pill · working area · replicas-added · footer buttons ── */
+    function buildMainCard() {
+      var errBanner = '<div id="replica-error-banner" style="display:none;'
+        + 'background:#fff5f5;border:1px solid #fca5a5;border-left:4px solid #dc3545;'
+        + 'border-radius:6px;padding:10px 14px;margin-top:14px;font-size:0.85rem;color:#b91c1c;">'
+        + '<i class="fas fa-exclamation-circle mr-2"></i>'
+        + '<span id="replica-error-msg"></span>'
+        + '</div>';
+
+      return '<div class="card mb-3">'
+        + '<div class="card-body">'
+        +   buildTitleBlock()
+        +   '<hr class="mt-3 mb-3">'
+        +   buildWorkingArea()
+        +   '<hr class="mt-3 mb-3">'
+        +   '<div id="section2-root">' + buildSection2Inner('') + '</div>'
+        +   errBanner
+        +   '<hr class="mt-3 mb-3">'
+        +   buildFooterButtons()
+        + '</div>'
+        + '</div>';
+    }
+
+    function buildTitleBlock() {
+      var groupWord = species === 'Sheep' ? 'Flock' : 'Herd';
+      var icon      = species === 'Cattle' ? 'fa-tractor' : 'fa-tag';
+      var pill = '<span style="display:inline-flex;align-items:center;gap:5px;'
+               + 'background:#dde6ec;border:1px solid #c3d0d8;color:#0d3349;'
+               + 'border-radius:4px;padding:3px 9px;font-size:12px;">'
+               + '<i class="fas ' + icon + '"></i>&nbsp;'
+               + esc(groupWord) + '&nbsp;' + esc(herd)
+               + '</span>';
+      return '<p class="mb-2" style="font-size:18px;font-weight:500;color:#0d3349;">'
+           +   'Order replica tags: ' + esc(species)
+           + '</p>'
+           + '<div class="mb-0">' + pill + '</div>';
+    }
+
+    function buildWorkingArea() {
+      /* Label row — sheep gets a right-aligned inert "Tag history" ghost link */
+      var labelRow = '<div class="d-flex align-items-center justify-content-between mb-1">'
+        + '<span class="font-weight-bold" style="font-size:0.875rem;">Tag required</span>'
+        + (species === 'Sheep'
+            ? '<span class="ghost-link" style="pointer-events:none;opacity:0.5;">'
+              + '<i class="fas fa-history"></i> Tag history</span>'
+            : '')
+        + '</div>';
+
+      var entryRow = '<div class="d-flex align-items-center" style="gap:8px;">'
+        + buildTagEntryHtml()
+        + '<button class="btn btn-luis btn-sm" onclick="handleCheck()">'
+        + '<i class="fas fa-search mr-1"></i>Check this tag</button>'
+        + '</div>';
+
+      var preCheck = '<div id="pre-check-msg" class="mt-3" style="color:#adb5bd;font-size:0.875rem;">'
+        + '<i class="fas fa-tags mr-2"></i>Check a tag to choose its replicas.'
+        + '</div>';
+
+      var postCheck = '<div id="post-check" style="display:none;">'
+        + '<div class="mt-3 mb-1" style="font-size:0.875rem;color:#2a9a4a;">'
+        +   '<i class="fas fa-check-circle mr-1"></i>'
+        +   '<span id="tag-found-label"></span>'
+        + '</div>'
+        + buildReplicaGrid()
+        + '<hr class="mt-3 mb-3">'
+        + '<div class="d-flex justify-content-end" style="gap:8px;">'
+        +   '<button class="btn btn-sm" onclick="handleCancel()"'
+        +     ' style="background:#fff;border:1px solid #cbd2d6;color:#0d3349;font-weight:500;">'
+        +     'Cancel</button>'
+        +   '<button class="btn btn-luis btn-sm" onclick="handleAddToOrder()">'
+        +     '<i class="fas fa-plus mr-1"></i>Add to order</button>'
+        + '</div>'
+        + '</div>';
+
+      return labelRow + entryRow + preCheck + postCheck;
+    }
+
+    /* ── Tag entry: cattle = custom picker; sheep = plain text input ── */
+    function buildTagEntryHtml() {
+      if (species !== 'Cattle') {
+        return '<input type="text" id="tag-input" class="form-control form-control-sm"'
+          + ' style="max-width:380px;flex-shrink:0;" placeholder="Enter tag number…">';
+      }
+
+      /* Custom on-holding picker for cattle */
+      return '<div class="tag-picker-wrap" style="position:relative;width:100%;max-width:380px;flex-shrink:0;">'
+
+        /* Main value input + caret toggle */
+        + '<div style="position:relative;">'
+        +   '<input type="text" id="tag-input" class="form-control form-control-sm"'
+        +     ' placeholder="Type or select a tag number…" autocomplete="off"'
+        +     ' style="padding-right:30px;">'
+        +   '<button type="button" id="tag-picker-toggle" tabindex="-1"'
+        +     ' style="position:absolute;right:0;top:0;bottom:0;background:none;border:none;'
+        +       'padding:0 9px;color:#6c757d;cursor:pointer;line-height:1;">'
+        +     '<i class="fas fa-chevron-down" style="font-size:10px;"></i>'
+        +   '</button>'
+        + '</div>'
+
+        /* Dropdown panel */
+        + '<div id="tag-picker-panel" style="display:none;position:absolute;top:calc(100% + 2px);'
+        +   'left:0;right:0;min-width:300px;background:#fff;border:1px solid #ced4da;'
+        +   'border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.1);z-index:200;">'
+
+        /* Panel filter input */
+        +   '<div style="padding:7px 8px;border-bottom:1px solid #e9ecef;">'
+        +     '<div style="position:relative;">'
+        +       '<i class="fas fa-search" style="position:absolute;left:8px;top:50%;'
+        +         'transform:translateY(-50%);color:#adb5bd;font-size:11px;pointer-events:none;"></i>'
+        +       '<input type="text" id="tag-filter-input" class="form-control form-control-sm"'
+        +         ' style="padding-left:26px;" placeholder="Filter tags…" autocomplete="off">'
+        +     '</div>'
+        +   '</div>'
+
+        /* Section header: "On holding" + count */
+        +   '<div style="display:flex;justify-content:space-between;align-items:center;'
+        +     'padding:4px 10px;background:#f8f9fa;border-bottom:1px solid #e9ecef;">'
+        +     '<span style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;'
+        +       'color:#6c757d;font-weight:600;">On holding</span>'
+        +     '<span id="tag-picker-count" style="font-size:11px;color:#adb5bd;"></span>'
+        +   '</div>'
+
+        /* Scrollable tag list */
+        +   '<div id="tag-picker-list" style="max-height:196px;overflow-y:auto;"></div>'
+
+        /* Footer hint */
+        +   '<div style="padding:5px 10px;border-top:1px solid #e9ecef;'
+        +     'font-size:11px;color:#adb5bd;font-style:italic;">'
+        +     'Registered tags for this herd. Type to filter, or enter a number manually.'
+        +   '</div>'
+        + '</div>'
+        + '</div>';
+    }
+
+    function buildReplicaGrid() {
+      var rowsHtml = rows.map(function (row, i) {
+        var bg      = i === 0 ? OB.new.primaryEid : OB.new.secondaryNonEid;
+        var iconCol = i === 0 ? '#0d3349'         : '#fff';
+
+        var badge = '<span class="tag-badge" style="background:' + bg + ';">'
+                  + '<i class="fas fa-tag" style="font-size:0.8rem;color:' + iconCol + ';"></i>'
+                  + '</span>';
+
+        var chip = ROW_CHIP[row]
+          ? '<span class="row-type-chip">' + esc(ROW_CHIP[row]) + '</span>'
+          : '';
+
+        var tagProds   = window.LUIS_DATA.getTagProducts(species, 'replica', row);
+        var replicaSel;
+        if (tagProds.length === 0) {
+          replicaSel = '<select class="form-control form-control-sm" id="replica-sel-' + esc(row) + '" disabled>'
+            + '<option>— products pending —</option>'
+            + '</select>';
+        } else {
+          var products = tagProds.map(function (p) {
+            return '<option value="' + esc(p.name) + '" data-rule-type="' + esc(p.ruleType) + '">'
+              + esc(p.name) + '</option>';
+          }).join('');
+          replicaSel = '<select class="form-control form-control-sm" id="replica-sel-' + esc(row) + '">'
+            + '<option value="">Select replica if required</option>'
+            + products
+            + '</select>';
+        }
+
+        var colour = buildColourField(row);
+
+        return '<tr data-row-id="' + esc(row) + '">'
+          + '<td class="align-middle" style="white-space:nowrap;">'
+          +   badge + '&nbsp;'
+          +   '<span style="font-size:13px;font-weight:500;">' + esc(ROW_LABEL[row] || row) + '</span>'
+          +   chip
+          + '</td>'
+          + '<td class="align-middle">' + replicaSel + '</td>'
+          + '<td class="align-middle">' + colour + '</td>'
+          + '</tr>';
+      }).join('');
+
+      return '<table class="table table-sm mb-0" id="replica-grid-table"'
+        + ' style="width:740px;margin-top:12px;">'
+        + '<thead><tr>'
+        + '<th style="width:160px;"></th>'
+        + '<th>Replica</th>'
+        + '<th style="width:180px;">Colour</th>'
+        + '</tr></thead>'
+        + '<tbody>' + rowsHtml + '</tbody>'
+        + '</table>';
+    }
+
+    function buildColourField(row) {
+      var result = window.LUIS_DATA.getTagColourOptions(species, row, 'new');
+
+      if (result.fixed) {
+        return '<div class="d-flex align-items-center" style="gap:6px;">'
+          + '<span class="colour-swatch"'
+          +   ' style="background:' + esc(result.hex) + ';"'
+          +   ' data-fixed-colour="' + esc(result.value) + '"'
+          +   ' data-fixed-hex="' + esc(result.hex) + '">'
+          + '</span>'
+          + '<span style="font-size:13px;">' + esc(result.value) + '</span>'
+          + '</div>';
+      }
+
+      if (!result.options || result.options.length === 0) {
+        return '<select class="form-control form-control-sm" disabled>'
+          + '<option>— colours pending —</option>'
+          + '</select>';
+      }
+
+      var hexMapJson = JSON.stringify(COLOUR_HEX);
+      var opts = result.options.map(function (c) {
+        return '<option value="' + esc(c) + '">' + esc(c) + '</option>';
+      }).join('');
+      return '<div class="d-flex align-items-center" style="gap:6px;">'
+        + '<span class="colour-swatch colour-swatch-indicator" style="display:none;"></span>'
+        + '<select class="form-control form-control-sm colour-select"'
+        +   " data-hex-map='" + hexMapJson + "'>"
+        +   '<option value="">Select a colour</option>' + opts
+        + '</select>'
+        + '</div>';
+    }
+
+    /* ── Section 2 content (no card wrapper — lives inside the main card) ── */
+    function buildSection2Inner(savedRef) {
+      savedRef = savedRef || '';
+      var count = replicas.length;
+
+      var header = '<div class="d-flex align-items-center flex-wrap mb-3" style="gap:16px;">'
+        + '<span style="font-size:0.9375rem;font-weight:600;color:#0d3349;">'
+        +   'Replicas added'
+        +   '<span style="font-weight:400;color:#6b7a83;"> &middot; ' + count + '</span>'
+        + '</span>'
+        + '<div class="ml-auto d-flex align-items-center flex-wrap" style="gap:8px;">'
+        +   '<span style="font-size:12px;color:#0d3349;font-weight:500;white-space:nowrap;">'
+        +     'Order reference'
+        +     '<span class="font-weight-normal text-muted"> (optional)</span>'
+        +   '</span>'
+        +   '<input type="text" id="order-ref" class="form-control form-control-sm"'
+        +     ' style="max-width:260px;" placeholder="Your unique order reference"'
+        +     ' value="' + esc(savedRef) + '">'
+        + '</div>'
+        + '</div>';
+
+      var body;
+      if (count === 0) {
+        body = '<div style="color:#adb5bd;font-size:0.875rem;padding:8px 0;">'
+             + '<i class="fas fa-inbox mr-2"></i>No replicas added yet.'
+             + '</div>';
+      } else {
+        var tableRows = replicas.map(function (r, i) {
+          return '<tr>'
+            + '<td style="font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;'
+            +       'white-space:nowrap;">' + esc(r.tagNumber) + '</td>'
+            + '<td style="font-size:13px;">' + esc(r.position) + '</td>'
+            + '<td style="font-size:13px;">' + esc(r.product)  + '</td>'
+            + '<td><div class="d-flex align-items-center" style="gap:6px;">'
+            +   (r.colourHex
+                ? '<span class="colour-swatch" style="background:' + esc(r.colourHex) + ';"></span>'
+                : '')
+            +   '<span style="font-size:13px;">' + esc(r.colour || '—') + '</span>'
+            + '</div></td>'
+            + '<td class="text-center">'
+            +   '<button class="btn btn-sm btn-link p-0" onclick="handleRemove(' + i + ')"'
+            +     ' style="color:#b0bec5;" title="Remove">'
+            +     '<i class="fas fa-trash-alt"></i></button>'
+            + '</td>'
+            + '</tr>';
+        }).join('');
+
+        body = '<table class="luis-table">'
+          + '<thead><tr>'
+          + '<th>Tag number</th>'
+          + '<th>Position</th>'
+          + '<th>Product</th>'
+          + '<th>Colour</th>'
+          + '<th style="width:40px;"></th>'
+          + '</tr></thead>'
+          + '<tbody>' + tableRows + '</tbody>'
+          + '</table>';
+      }
+
+      return header + body;
+    }
+
+    /* ── Page-level Exit / Order replicas — inside main card ── */
+    function buildFooterButtons() {
+      return '<div class="d-flex justify-content-between">'
+        + '<a href="select-species.html?cph=' + enc(cph) + '"'
+        +   ' class="btn"'
+        +   ' style="background:#fff;border:1px solid #cbd2d6;color:#0d3349;font-weight:500;">'
+        +   'Exit</a>'
+        + '<button type="button" id="replica-submit-btn" class="btn btn-luis">Order replicas</button>'
+        + '</div>';
+    }
+
+    /* ═══════════════════════ COLOUR SELECT WIRING ═══════════════════════ */
+
+    function wireColourSelects() {
+      document.querySelectorAll('.colour-select').forEach(function (sel) {
+        var indicator = sel.parentElement.querySelector('.colour-swatch-indicator');
+        var hexMap    = JSON.parse(sel.getAttribute('data-hex-map') || '{}');
+        function update() {
+          var hex = hexMap[sel.value] || '';
+          if (hex) {
+            indicator.style.display     = 'inline-block';
+            indicator.style.background  = hex;
+            indicator.style.borderStyle = 'solid';
+            indicator.style.borderColor = '#dee2e6';
+          } else {
+            indicator.style.display = 'none';
+          }
+        }
+        sel.addEventListener('change', update);
+        update();
+      });
+    }
+
+    /* ═══════════════════════ CATTLE PICKER ═══════════════════════ */
+
+    function wireCattlePicker() {
+      var tagInput    = document.getElementById('tag-input');
+      var toggleBtn   = document.getElementById('tag-picker-toggle');
+      var panel       = document.getElementById('tag-picker-panel');
+      var filterInput = document.getElementById('tag-filter-input');
+      var listEl      = document.getElementById('tag-picker-list');
+      var countEl     = document.getElementById('tag-picker-count');
+
+      if (!tagInput || !panel) return;
+
+      function renderList(query) {
+        query = String(query || '').toLowerCase().trim();
+        var filtered = query ? STUB_TAGS.filter(function (t) {
+          return t.toLowerCase().indexOf(query) !== -1;
+        }) : STUB_TAGS.slice();
+
+        countEl.textContent = filtered.length + ' of ' + STUB_TAGS.length + ' shown';
+
+        if (!filtered.length) {
+          listEl.innerHTML = '<div style="padding:10px;color:#adb5bd;font-size:12px;text-align:center;">'
+            + 'No tags match that filter.</div>';
+          return;
+        }
+
+        listEl.innerHTML = filtered.map(function (t) {
+          var display = query ? highlightMatch(t, query) : esc(t);
+          return '<div class="tag-picker-row"'
+            + ' data-tag="' + esc(t) + '"'
+            + ' style="padding:7px 10px;font-family:ui-monospace,SFMono-Regular,monospace;'
+            +   'font-size:12px;color:#0d3349;">'
+            + display
+            + '</div>';
+        }).join('');
+
+        listEl.querySelectorAll('.tag-picker-row').forEach(function (row) {
+          row.addEventListener('click', function () {
+            tagInput.value = this.getAttribute('data-tag');
+            closePanel();
+          });
+        });
+      }
+
+      function highlightMatch(text, query) {
+        var lower = text.toLowerCase();
+        var idx   = lower.indexOf(query);
+        if (idx === -1) return esc(text);
+        return esc(text.slice(0, idx))
+          + '<strong style="background:#fff9c4;font-weight:inherit;">'
+          + esc(text.slice(idx, idx + query.length))
+          + '</strong>'
+          + esc(text.slice(idx + query.length));
+      }
+
+      function openPanel() {
+        renderList(filterInput ? filterInput.value : '');
+        panel.style.display = '';
+        if (filterInput) setTimeout(function () { filterInput.focus(); }, 0);
+      }
+
+      function closePanel() {
+        panel.style.display = 'none';
+      }
+
+      /* Toggle button */
+      toggleBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (panel.style.display === 'none') { openPanel(); } else { closePanel(); }
+      });
+
+      /* Main input focus → open */
+      tagInput.addEventListener('focus', function () {
+        if (panel.style.display === 'none') openPanel();
+      });
+
+      /* Main input type → sync to panel filter + re-render */
+      tagInput.addEventListener('input', function () {
+        if (panel.style.display === 'none') openPanel();
+        if (filterInput) filterInput.value = tagInput.value;
+        renderList(tagInput.value);
+      });
+
+      /* Panel filter input type → re-render */
+      if (filterInput) {
+        filterInput.addEventListener('input', function () {
+          renderList(filterInput.value);
+        });
+        filterInput.addEventListener('mousedown', function (e) {
+          e.stopPropagation(); // prevent triggering document close handler
+        });
+      }
+
+      /* Click outside → close */
+      document.addEventListener('click', function (e) {
+        var wrap = tagInput.closest
+          ? tagInput.closest('.tag-picker-wrap')
+          : tagInput.parentElement;
+        if (wrap && !wrap.contains(e.target)) closePanel();
+      });
+
+      /* Escape → close */
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closePanel();
+      });
+
+      /* Initial list render */
+      renderList('');
+    }
+
+    /* ═══════════════════════ INTERACTIVE HANDLERS ═══════════════════════ */
+
+    function handleCheck() {
+      var tagInput = document.getElementById('tag-input');
+      if (!tagInput || !tagInput.value.trim()) return;
+      document.getElementById('pre-check-msg').style.display = 'none';
+      document.getElementById('post-check').style.display    = '';
+      document.getElementById('tag-found-label').textContent = 'Tag found · ' + tagInput.value.trim();
+      wireColourSelects();
+    }
+
+    function handleCancel() {
+      var tagInput = document.getElementById('tag-input');
+      if (tagInput) tagInput.value = '';
+      /* Close cattle picker panel if open */
+      var panel = document.getElementById('tag-picker-panel');
+      if (panel) panel.style.display = 'none';
+      document.getElementById('pre-check-msg').style.display = '';
+      document.getElementById('post-check').style.display    = 'none';
+    }
+
+    function handleAddToOrder() {
+      var tagInput = document.getElementById('tag-input');
+      var tagNum   = tagInput ? tagInput.value.trim() : '';
+      if (!tagNum) return;
+
+      var added = 0;
+      rows.forEach(function (row) {
+        var replicaSel = document.getElementById('replica-sel-' + row);
+        if (!replicaSel || !replicaSel.value) return;
+
+        var rowEl     = document.querySelector('#replica-grid-table [data-row-id="' + row + '"]');
+        var colour    = '';
+        var colourHex = '';
+
+        if (rowEl) {
+          var colourSel = rowEl.querySelector('.colour-select');
+          var fixedSw   = rowEl.querySelector('[data-fixed-colour]');
+          if (colourSel && colourSel.value) {
+            colour    = colourSel.value;
+            colourHex = COLOUR_HEX[colour] || '';
+          } else if (fixedSw) {
+            colour    = fixedSw.getAttribute('data-fixed-colour') || '';
+            colourHex = fixedSw.getAttribute('data-fixed-hex')    || '';
+          }
+        }
+
+        replicas.push({
+          tagNumber: tagNum,
+          position:  ROW_LABEL[row] || row,
+          product:   replicaSel.value,
+          colour:    colour,
+          colourHex: colourHex
+        });
+        added++;
+      });
+
+      if (added > 0) {
+        refreshSection2();
+        handleCancel();
+      }
+    }
+
+    function handleRemove(i) {
+      replicas.splice(i, 1);
+      refreshSection2();
+    }
+
+    function refreshSection2() {
+      var s2    = document.getElementById('section2-root');
+      var refEl = document.getElementById('order-ref');
+      var saved = refEl ? refEl.value : '';
+      if (s2) s2.innerHTML = buildSection2Inner(saved);
+    }
+
+    /* ── Expose handlers to global scope for inline onclick attributes ── */
+    window.handleCheck      = handleCheck;
+    window.handleCancel     = handleCancel;
+    window.handleAddToOrder = handleAddToOrder;
+    window.handleRemove     = handleRemove;
+
+    /* ── Validation and submit ─────────────────────────────────────────────── */
+
+    var submitBtn = document.getElementById('replica-submit-btn');
+    if (submitBtn) {
+      var ROW_KEY_MAP = { Primary: 'primary', Secondary: 'secondary', EID: 'eid', 'Non-EID': 'nonEid' };
+
+      function showBanner(msg) {
+        var b = document.getElementById('replica-error-banner');
+        var m = document.getElementById('replica-error-msg');
+        if (m) m.textContent = msg;
+        if (b) b.style.display = '';
+      }
+
+      function hideBanner() {
+        var b = document.getElementById('replica-error-banner');
+        if (b) b.style.display = 'none';
+      }
+
+      function addRowErr(td, msg) {
+        if (!td || td.querySelector('.replica-td-err')) return;
+        var err = document.createElement('div');
+        err.className = 'replica-td-err';
+        err.style.cssText = 'color:#dc3545;font-size:0.78rem;margin-top:2px;';
+        err.textContent = msg;
+        td.appendChild(err);
+      }
+
+      submitBtn.addEventListener('click', function () {
+        if (replicas.length === 0) {
+          showBanner('Add at least one tag to replicate before continuing.');
+          return;
+        }
+
+        var errorCount = 0;
+        var trs = document.querySelectorAll('#section2-root tbody tr');
+
+        replicas.forEach(function (r, i) {
+          var tds = trs[i] ? trs[i].querySelectorAll('td') : [];
+
+          if (!r.product) {
+            addRowErr(tds[2], 'No product selected.');
+            errorCount++;
+          }
+
+          var rowKey    = ROW_KEY_MAP[r.position] || r.position.toLowerCase();
+          var colResult = window.LUIS_DATA.getTagColourOptions(species, rowKey, 'new');
+          var needsColour = !colResult.fixed && colResult.options && colResult.options.length > 0;
+          if (needsColour && !r.colour) {
+            addRowErr(tds[3], 'Select a colour to continue.');
+            errorCount++;
+          }
+        });
+
+        if (errorCount > 0) {
+          showBanner(errorCount + ' field'
+            + (errorCount === 1 ? '' : 's') + ' need'
+            + (errorCount === 1 ? 's' : '') + ' attention before this order can be placed.');
+          return;
+        }
+
+        hideBanner();
+
+        var refInput = document.getElementById('order-ref');
+        var newOrder = {
+          id:              window.LUIS_DATA.getNextOrderId(),
+          cph:             cph,
+          herd:            herd,
+          species:         species,
+          type:            'replica',
+          variant:         'replacement',
+          date:            new Date().toISOString(),
+          orderedBy:       'AllflexServiceAccount',
+          manufacturerRef: refInput && refInput.value.trim() ? refInput.value.trim() : null,
+          lines:           []
+        };
+
+        replicas.forEach(function (r) {
+          var rowKey   = ROW_KEY_MAP[r.position] || r.position.toLowerCase();
+          var tagRange = window.LUIS_DATA.getNextTagRange(cph, herd, 1);
+          if (!tagRange) return;
+          newOrder.lines.push({
+            row:       rowKey,
+            product:   r.product,
+            colour:    r.colour,
+            colourHex: r.colourHex,
+            qty:       1,
+            class:     'Flag',
+            tagPrefix: tagRange.tagPrefix,
+            tagStart:  tagRange.start,
+            tagEnd:    tagRange.end
+          });
+        });
+
+        if (!newOrder.lines.length) return;
+
+        try { sessionStorage.setItem('luisDemoNewOrder', JSON.stringify(newOrder)); } catch (e) {}
+        window.location.href = 'order-view.html?id=' + encodeURIComponent(newOrder.id);
+      });
+    }
+
+  })();
+  </script>
+</body>
+</html>

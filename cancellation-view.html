@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancellation View - LUIS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/luis.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark px-3">
+    <div class="d-flex align-items-center">
+      <span class="navbar-brand mb-0 h5 font-weight-bold">Cancellation view</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <a href="#" class="nav-link mr-2"><i class="fas fa-question-circle mr-1"></i>ETM Guidance</a>
+      <a href="#" class="nav-link mr-2" style="color:#c8d400;"><i class="fas fa-user mr-1"></i>As: Allflex UK Group Ltd <i class="fas fa-caret-down"></i></a>
+      <a href="#" class="nav-link mr-3"><i class="fas fa-user mr-1"></i>Brierley Seinen <i class="fas fa-caret-down"></i></a>
+      <img src="images/luis-logo.svg" alt="LUIS - Livestock Unique Identification Service" style="width:44px;height:44px;">
+    </div>
+  </nav>
+
+  <div class="luis-stripe"></div>
+
+  <div class="luis-rail-layout">
+
+    <nav class="luis-rail" id="luis-rail">
+      <div class="rail-top">
+        <a href="select-manufacturer.html" class="rail-item rail-etm" title="Login as ETM">
+          <i class="fas fa-exchange-alt"></i><span class="rail-label">ETM Login</span>
+        </a>
+        <a href="index.html" class="rail-item" title="Home">
+          <i class="fas fa-home"></i><span class="rail-label">Home</span>
+        </a>
+        <div class="rail-divider"></div>
+        <button class="rail-item active" id="rail-btn-searches" onclick="toggleRail('searches')" title="Searches">
+          <i class="fas fa-search"></i><span class="rail-label">Searches</span>
+        </button>
+        <button class="rail-item" id="rail-btn-tagging" onclick="toggleRail('tagging')" title="Tagging">
+          <i class="fas fa-tags"></i><span class="rail-label">Tagging</span>
+        </button>
+        <button class="rail-item" id="rail-btn-support" onclick="toggleRail('support')" title="Support">
+          <i class="fas fa-life-ring"></i><span class="rail-label">Support</span>
+        </button>
+        <button class="rail-item" id="rail-btn-users" onclick="toggleRail('users')" title="User management">
+          <i class="fas fa-users"></i><span class="rail-label">Users</span>
+        </button>
+      </div>
+      <div class="rail-bottom">
+        <div class="rail-divider"></div>
+        <a href="#" class="rail-item rail-logout" title="Logout">
+          <i class="fas fa-sign-out-alt"></i><span class="rail-label">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="luis-flyout" id="luis-flyout">
+      <div class="flyout-panel" id="flyout-searches">
+        <div class="flyout-header">Searches</div>
+        <a href="keeper-search.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-user"></i> Keeper search</a>
+        <a href="herd-search.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-tractor"></i> Herd search</a>
+        <a href="tag-history.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-tag"></i> Tag history</a>
+        <a href="orders-search.html" class="flyout-item" onclick="closeFlyout()"><i class="fas fa-file-alt"></i> Orders</a>
+      </div>
+      <div class="flyout-panel" id="flyout-tagging">
+        <div class="flyout-header">Tagging</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-check-circle"></i> Approved tags</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-tag"></i> Tag classes</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-tools"></i> Tag constructions</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-check"></i> Valid tag combinations</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-industry"></i> Manufacturers</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-globe"></i> Manf IP addresses</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-paper-plane"></i> API access requests</a>
+      </div>
+      <div class="flyout-panel" id="flyout-support">
+        <div class="flyout-header">Support</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-comment-alt"></i> Service message</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-question-circle"></i> FAQs</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-calendar-times"></i> End date reasons</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-tools"></i> Support tasks</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-file-alt"></i> fSeries reports</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-list"></i> Lookups</a>
+      </div>
+      <div class="flyout-panel" id="flyout-users">
+        <div class="flyout-header">User management</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-user"></i> Users</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-shield-alt"></i> Roles</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-eye"></i> Access log</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-clipboard"></i> Audit log</a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1"><i class="fas fa-user-cog"></i> Service accounts</a>
+      </div>
+    </div>
+
+    <main class="rail-content flex-grow-1 py-3 px-4" style="background:#f4f5f6;">
+      <div id="cancellation-view-root"></div>
+    </main>
+
+  </div>
+
+  <footer class="luis-footer">
+    <a href="#">Privacy Policy <i class="fas fa-external-link-alt"></i></a>
+    <a href="#">Cookie Policy <i class="fas fa-external-link-alt"></i></a>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/luis.js"></script>
+  <script src="js/luis-data.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', function () { toggleRail('searches'); });</script>
+  <script>
+(function () {
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function enc(s) { return encodeURIComponent(String(s == null ? '' : s)); }
+  function pad5(n) { return String(n).padStart(5, '0'); }
+  function fmtDate(iso) {
+    if (!iso) { return ''; }
+    var p = String(iso).replace('T', ' ').split(/[- :]/);
+    return p[2] + '/' + p[1] + '/' + p[0] + ' ' + (p[3] || '00') + ':' + (p[4] || '00');
+  }
+
+  var LD = window.LUIS_DATA;
+  var OT = (LD && LD.orderTypes) || {};
+
+  function typeBadge(type) {
+    var label = esc((OT[type] || {}).label || type);
+    var cls = { conventional: 'badge-conventional', eid: 'badge-eid', slaughter: 'badge-slaughter', replica: 'badge-replica' }[type];
+    if (cls) {
+      return '<span class="' + cls + '">' + label + '</span>';
+    }
+    return '<span style="background:#f0f0f0;color:#333;border-radius:20px;padding:4px 12px;font-size:0.85rem;font-weight:500;">' + label + '</span>';
+  }
+
+  function statusPillHtml(p) {
+    return '<span style="background:' + p.bg + ';color:' + p.color + ';'
+      + (p.outline ? 'border:' + p.outline + ';' : '')
+      + 'border-radius:20px;padding:4px 14px;font-size:0.875rem;font-weight:500;">'
+      + esc(p.label) + '</span>';
+  }
+
+  function keeperCardHtml(keeper, cph, extraBtns) {
+    var addrHtml = (keeper.address || []).map(function (l) { return '<p class="mb-1">' + esc(l) + '</p>'; }).join('');
+    var btns = '<div class="d-flex" style="gap:6px;">'
+      + '<a href="select-species.html?cph=' + enc(cph) + '" class="btn btn-luis btn-sm">Order more</a>'
+      + (extraBtns || '')
+      + '</div>';
+    return '<div class="card h-100"><div class="card-body">'
+      + '<div class="d-flex justify-content-between align-items-center">'
+      + '<h5 class="font-weight-bold mb-0">Keeper</h5>'
+      + btns
+      + '</div><hr>'
+      + '<div class="row">'
+      + '<div class="col-7">'
+      + '<p class="mb-1"><strong>Name:</strong> ' + esc(keeper.name || '') + '</p>'
+      + addrHtml
+      + '</div>'
+      + '<div class="col-5">'
+      + '<p class="mb-1"><strong>Phone:</strong> ' + esc(keeper.telephone || '') + '</p>'
+      + '<p class="mb-1"><strong>Mobile:</strong> ' + esc(keeper.mobile || '') + '</p>'
+      + '</div>'
+      + '</div>'
+      + '</div></div>';
+  }
+
+  function cancelledTagsCardHtml(cancellation) {
+    var total = 0;
+    var ROW_POS = { primary: 1, eid: 1, secondary: 2, nonEid: 2 };
+    var rows = cancellation.lines.map(function (ln) {
+      total += ln.qty;
+      var rangeStr = (ln.tagRanges || []).map(function (r) {
+        var s = esc(r.tagPrefix + pad5(r.start));
+        var e = esc(r.tagPrefix + pad5(r.end));
+        return r.start === r.end ? s : s + ' – ' + e;
+      }).join(', ');
+      return '<tr>'
+        + '<td>' + rangeStr + '</td>'
+        + '<td>' + esc(ln.product) + '</td>'
+        + '<td>' + ln.qty + '</td>'
+        + '<td>' + (ln.row === 'eid' || ln.row === 'nonEid' ? '<i class="fas fa-check" style="color:#0d3349;font-size:11px;"></i>' : '') + '</td>'
+        + '<td>' + (ROW_POS[ln.row] || 1) + '</td>'
+        + '</tr>';
+    }).join('');
+    return '<div class="card mb-3"><div class="card-body">'
+      + '<h5 class="font-weight-bold">Cancelled tags</h5><hr>'
+      + '<div class="table-responsive"><table class="table table-hover luis-table">'
+      + '<thead><tr><th>Tag range</th><th>Tag name</th><th>Qty</th><th>EID</th><th>Tag</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></div>'
+      + '<div class="text-right font-weight-bold mt-2">Tags cancelled: ' + total + '</div>'
+      + '</div></div>';
+  }
+
+  function historyCardHtml(orderId) {
+    var events = LD.getOrderHistory(orderId);
+    if (!events.length) { return ''; }
+    var rows = events.map(function (ev) {
+      var href = ev.type === 'Cancellation'
+        ? 'cancellation-view.html?id=' + enc(ev.id)
+        : 'reinstatement-view.html?id=' + enc(ev.id);
+      return '<tr>'
+        + '<td>' + esc(ev.type) + '</td>'
+        + '<td>' + esc(fmtDate(ev.date)) + '</td>'
+        + '<td class="luis-table__action"><a href="' + href + '" class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;">View</a></td>'
+        + '</tr>';
+    }).join('');
+    return '<div class="card mb-3"><div class="card-body">'
+      + '<h5 class="font-weight-bold">Order history</h5><hr>'
+      + '<div class="table-responsive"><table class="table table-sm table-hover luis-table">'
+      + '<thead><tr><th>Event</th><th>Date</th><th class="luis-table__action"></th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></div>'
+      + '</div></div>';
+  }
+
+  function notesCardHtml() {
+    return '<div class="card mb-3"><div class="card-body">'
+      + '<h5 class="font-weight-bold">Notes</h5><hr>'
+      + '<p class="text-muted mb-2" style="font-size:13px;">No notes</p>'
+      + '<button class="btn btn-luis" onclick="console.log(\'TODO: add note\')">Add note</button>'
+      + '</div></div>';
+  }
+
+  // ── Resolve cancellation ──────────────────────────────────────────────
+  var params       = new URLSearchParams(location.search);
+  var cancelId     = params.get('id') || '40010';
+  var cancellation = LD.getCancellationById(cancelId);
+  if (!cancellation) { cancelId = '40010'; cancellation = LD.getCancellationById(cancelId); }
+  if (!cancellation) {
+    document.getElementById('cancellation-view-root').innerHTML = '<p class="text-danger">Cancellation not found.</p>';
+    return;
+  }
+
+  var order  = LD.getOrderById(cancellation.orderId) || {};
+  var status = LD.getOrderStatus(cancellation.orderId);
+  var pill   = LD.getOrderStatusPill(status);
+  var keeper = LD.getKeeperByCph(order.cph || '') || {};
+
+  var speciesIcon = order.species === 'Cattle'
+    ? '<img src="images/cattle-icon.svg" alt="Cattle" style="width:54px;height:54px;object-fit:contain;">'
+    : order.species === 'Sheep'
+    ? '<img src="images/sheep-icon.svg" alt="Sheep" style="width:54px;height:54px;object-fit:contain;">'
+    : order.species === 'Goat'
+    ? '<img src="images/goat-icon.svg" alt="Goat" style="width:54px;height:54px;object-fit:contain;">'
+    : order.species === 'Camelids'
+    ? '<img src="images/camelid-icon.svg" alt="Camelids" style="width:54px;height:54px;object-fit:contain;">'
+    : '<i class="fas fa-tag" style="font-size:2.6rem;color:#0d3349;line-height:1;"></i>';
+
+  // "Reinstate tags" shown only when no reinstatement exists yet
+  // TODO: wire to reinstate flow
+  var hasReinstatement = !!LD.getReinstatementForCancellation(cancelId);
+  var reinstateBtn = hasReinstatement
+    ? ''
+    : '<button class="btn btn-luis btn-sm" onclick="console.log(\'TODO: reinstate flow\')">Reinstate tags</button>';
+
+  var html =
+    '<div class="d-flex justify-content-between align-items-start mb-2">'
+    + '<h3 class="font-weight-bold" style="color:#0d3349;">Cancellation ID: ' + esc(cancellation.id) + '</h3>'
+    + '<div>' + speciesIcon + '</div>'
+    + '</div>'
+    + '<div class="d-flex align-items-center mb-3" style="gap:10px;">'
+    + typeBadge(order.type || '') + statusPillHtml(pill)
+    + '</div>'
+    // Cancellation details + Order details
+    + '<div class="row mb-3">'
+    + '<div class="col-md-6 mb-3">'
+    + '<div class="card h-100"><div class="card-body">'
+    + '<h5 class="font-weight-bold">Cancellation details</h5><hr>'
+    + '<p class="mb-1"><strong>Cancelled on:</strong> ' + esc(fmtDate(cancellation.cancelledOn)) + '</p>'
+    + '<p class="mb-1"><strong>Cancelled by:</strong> ' + esc(cancellation.cancelledBy) + '</p>'
+    + '<p class="mb-3"><strong>Reason:</strong> ' + esc(cancellation.reason) + '</p>'
+    + '</div></div>'
+    + '</div>'
+    + '<div class="col-md-6 mb-3">'
+    + '<div class="card h-100"><div class="card-body">'
+    + '<h5 class="font-weight-bold">Order details</h5><hr>'
+    + '<p class="mb-1"><strong>Original order:</strong> <a href="order-view.html?id=' + enc(cancellation.orderId) + '">' + esc(cancellation.orderId) + '</a></p>'
+    + '<p class="mb-1"><strong>CPH:</strong> ' + esc(order.cph || '') + '</p>'
+    + '<p class="mb-1"><strong>Herd:</strong> ' + esc(order.herd || '') + '</p>'
+    + '<p class="mb-1"><strong>Species:</strong> ' + esc(order.species || '') + '</p>'
+    + '<p class="mb-3"><strong>Ordered by:</strong> ' + esc(order.orderedBy || '') + '</p>'
+    + '</div></div>'
+    + '</div>'
+    + '</div>'
+    // Keeper card
+    + '<div class="row mb-3">'
+    + '<div class="col-md-6">' + keeperCardHtml(keeper, order.cph || '', reinstateBtn) + '</div>'
+    + '</div>'
+    + cancelledTagsCardHtml(cancellation)
+    + notesCardHtml()
+    + historyCardHtml(cancellation.orderId);
+
+  document.getElementById('cancellation-view-root').innerHTML = html;
+})();
+  </script>
+</body>
+</html>

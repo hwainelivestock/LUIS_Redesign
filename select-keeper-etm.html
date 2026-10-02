@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Keeper - LUIS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="css/luis.css">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+  <!-- Navbar (ETM variant) -->
+  <nav class="navbar navbar-dark px-3">
+    <div class="d-flex align-items-center">
+      <span class="navbar-brand mb-0 h5 font-weight-bold">Select keeper</span>
+    </div>
+    <div class="d-flex align-items-center">
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-question-circle mr-1"></i>ETM Guidance
+      </a>
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-info-circle mr-1"></i>FAQs
+      </a>
+      <a href="#" class="nav-link mr-2">
+        <i class="fas fa-user mr-1"></i>Wilson Lodge Farm
+        <i class="fas fa-caret-down ml-1"></i>
+      </a>
+      <a href="#" class="nav-link mr-3" style="color:#c8d400;">
+        <i class="fas fa-user mr-1"></i>As: Allflex UK Group Ltd
+        <i class="fas fa-caret-down ml-1"></i>
+      </a>
+      <img src="images/luis-logo.svg" alt="LUIS - Livestock Unique Identification Service" style="width:44px;height:44px;">
+    </div>
+  </nav>
+
+  <!-- Yellow stripe -->
+  <div class="luis-stripe"></div>
+
+  <!-- Rail layout -->
+  <div class="luis-rail-layout">
+
+    <!-- Icon rail -->
+    <nav class="luis-rail" id="luis-rail">
+      <div class="rail-top">
+        <a href="index.html"
+           class="rail-item rail-etm"
+           title="Return to admin dashboard">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="rail-label">Return to Admin</span>
+        </a>
+        <a href="etm-dashboard.html"
+           class="rail-item active"
+           title="Dashboard">
+          <i class="fas fa-th-large"></i>
+          <span class="rail-label">Dashboard</span>
+        </a>
+        <div class="rail-divider"></div>
+        <button class="rail-item"
+                id="rail-btn-searches"
+                onclick="toggleRail('searches')"
+                title="Searches">
+          <i class="fas fa-search"></i>
+          <span class="rail-label">Searches</span>
+        </button>
+        <button class="rail-item"
+                id="rail-btn-manage"
+                onclick="toggleRail('manage')"
+                title="Manage">
+          <i class="fas fa-cog"></i>
+          <span class="rail-label">Manage</span>
+        </button>
+      </div>
+      <div class="rail-bottom">
+        <div class="rail-divider"></div>
+        <a href="#" class="rail-item rail-logout" title="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="rail-label">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ETM flyout panel -->
+    <div class="luis-flyout" id="luis-flyout">
+
+      <div class="flyout-panel" id="flyout-searches">
+        <div class="flyout-header">Searches</div>
+        <a href="select-keeper-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-user"></i> Keeper search
+        </a>
+        <a href="tag-history.html?etm=true" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-tag"></i> Tag history
+        </a>
+        <a href="recent-orders-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-file-alt"></i> Recent orders
+        </a>
+        <a href="recent-cancellations-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-times-circle"></i> Recent cancellations
+        </a>
+        <a href="recent-recoveries-etm.html" class="flyout-item" onclick="closeFlyout()">
+          <i class="fas fa-redo"></i> Recent recoveries
+        </a>
+      </div>
+
+      <div class="flyout-panel" id="flyout-manage">
+        <div class="flyout-header">Manage</div>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-check-circle"></i> Approved tags
+        </a>
+        <a class="flyout-item" style="opacity:0.4;cursor:not-allowed;" aria-disabled="true" tabindex="-1">
+          <i class="fas fa-user"></i> Users
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Page content -->
+    <main class="rail-content flex-grow-1 py-3 px-4"
+          style="background:#f4f5f6;">
+
+      <!-- Keeper search card -->
+      <div class="search-card mb-4" style="width:fit-content;max-width:none">
+        <p class="search-card__title">Keeper search</p>
+        <p class="search-card__help">Search by CPH or herd/flock number to open a keeper.</p>
+        <div class="search-card__row">
+          <input type="text" id="etm-cph" class="search-card__input" placeholder="C/P/H"
+                 data-cph-mask inputmode="numeric" maxlength="12">
+          <input type="text" id="etm-herd" class="search-card__input" placeholder="Herd/Flock">
+          <button type="button" class="btn btn-luis" onclick="searchKeeperEtm()">Select keeper</button>
+        </div>
+        <div id="etm-error" class="search-card__error"></div>
+      </div>
+
+      <!-- Recent keepers card -->
+      <div style="background:#fff;border:1px solid #e7eaec;border-radius:8px;padding:20px 22px;">
+      <h5 class="font-weight-bold mb-3">Recent keepers</h5>
+      <table class="table table-hover luis-table" id="keepers-table">
+        <thead>
+          <tr>
+            <th>CPH <i class="fas fa-sort text-muted small"></i></th>
+            <th>Farm <i class="fas fa-sort text-muted small"></i></th>
+            <th>Address <i class="fas fa-sort text-muted small"></i></th>
+            <th>Telephone <i class="fas fa-sort text-muted small"></i></th>
+            <th class="luis-table__action"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>44/077/0001</td>
+            <td>Wilson Lodge Farm</td>
+            <td>4 Wilson Lodge, Kayleigh Dale, TA1 0RR</td>
+            <td>01610123456</td>
+            <td class="luis-table__action">
+              <button class="btn btn-luis btn-sm"
+                      style="padding:2px 10px;font-size:0.75rem;text-transform:none;"
+                      onclick="openKeeperModal('44/077/0001')">
+                Select keeper
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>44/088/0001</td>
+            <td>Greenfield Farm</td>
+            <td>12 Marsh Lane, Greenfield, EX4 2PQ</td>
+            <td>01610654321</td>
+            <td class="luis-table__action">
+              <button class="btn btn-luis btn-sm"
+                      style="padding:2px 10px;font-size:0.75rem;text-transform:none;"
+                      onclick="openKeeperModal('44/088/0001')">
+                Select keeper
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>44/099/0001</td>
+            <td>Dover Animal Farm</td>
+            <td>4 Dover Lane, Guston, Devonshire, CT15 5TE</td>
+            <td>01810123456</td>
+            <td class="luis-table__action">
+              <button class="btn btn-luis btn-sm"
+                      style="padding:2px 10px;font-size:0.75rem;text-transform:none;"
+                      onclick="openKeeperModal('44/099/0001')">
+                Select keeper
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td>44/033/0001</td>
+            <td>Hill View Farm</td>
+            <td>Hill View, Moor Lane, Buxton, SK17 9JE</td>
+            <td>01298445566</td>
+            <td class="luis-table__action"><button class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;opacity:0.4;cursor:not-allowed;" disabled>Select keeper</button></td>
+          </tr>
+          <tr>
+            <td>44/055/0001</td>
+            <td>Oak Tree Farm</td>
+            <td>Oak Tree Farm, Elm Road, Taunton, TA2 6QY</td>
+            <td>01823778899</td>
+            <td class="luis-table__action"><button class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;opacity:0.4;cursor:not-allowed;" disabled>Select keeper</button></td>
+          </tr>
+          <tr>
+            <td>44/044/0001</td>
+            <td>Meadowbrook Farm</td>
+            <td>Meadowbrook, Church Lane, Ludlow, SY8 1AB</td>
+            <td>01584223344</td>
+            <td class="luis-table__action"><button class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;opacity:0.4;cursor:not-allowed;" disabled>Select keeper</button></td>
+          </tr>
+          <tr>
+            <td>44/066/0001</td>
+            <td>Riverside Farm</td>
+            <td>Riverside, Mill Road, Hexham, NE46 3PT</td>
+            <td>01434556677</td>
+            <td class="luis-table__action"><button class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;opacity:0.4;cursor:not-allowed;" disabled>Select keeper</button></td>
+          </tr>
+          <tr>
+            <td>44/022/0001</td>
+            <td>Beech Grove Farm</td>
+            <td>Beech Grove, Station Road, Penrith, CA11 7DJ</td>
+            <td>01768990011</td>
+            <td class="luis-table__action"><button class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;opacity:0.4;cursor:not-allowed;" disabled>Select keeper</button></td>
+          </tr>
+          <tr>
+            <td>44/011/0001</td>
+            <td>Foxhollow Farm</td>
+            <td>Foxhollow, Brook Street, Leyburn, DL8 5AS</td>
+            <td>01969334455</td>
+            <td class="luis-table__action"><button class="btn btn-luis btn-sm" style="padding:2px 10px;font-size:0.75rem;text-transform:none;opacity:0.4;cursor:not-allowed;" disabled>Select keeper</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:12px;">
+        <span style="font-size:13px;color:#5f6b72;">Page 1 of 3</span>
+        <button type="button" style="background:#fff;border-radius:4px;padding:6px 12px;font-size:13px;border:1px solid #e3e6e8;color:#b7c0c5;cursor:not-allowed;" disabled><i class="fas fa-chevron-left" style="font-size:10px;margin-right:5px;"></i>Previous</button>
+        <button type="button" style="background:#fff;border-radius:4px;padding:6px 12px;font-size:13px;border:1px solid #cbd2d6;color:#0d3349;">Next <i class="fas fa-chevron-right" style="font-size:10px;margin-left:5px;"></i></button>
+      </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Keeper Modal (data-driven) -->
+  <div class="modal fade keeper-modal" id="keeperModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="keeper-close" data-dismiss="modal" aria-label="Close">&times;</button>
+        <div class="modal-body">
+          <div class="keeper-eyebrow">Keeper</div>
+          <div class="keeper-hero" id="km-hero"></div>
+          <div class="d-flex align-items-center flex-wrap mt-2" style="gap:8px;">
+            <span class="keeper-pill" id="km-cph"></span>
+            <span class="keeper-sub" id="km-sub"></span>
+          </div>
+
+          <a href="#" id="km-neworder" class="keeper-action mt-3">
+            <span>
+              <span class="keeper-action-title d-block">New order</span>
+              <span class="keeper-action-sub d-block">Start a tag order for this keeper</span>
+            </span>
+            <i class="fas fa-arrow-right arrow"></i>
+          </a>
+
+          <div class="keeper-recent-label">Recent activity</div>
+          <div class="keeper-chips">
+            <a href="orders-list.html" class="keeper-chip"><i class="fas fa-history mr-1"></i>Orders</a>
+            <a href="#" class="keeper-chip"><i class="fas fa-ban mr-1"></i>Cancellations</a>
+            <a href="#" class="keeper-chip"><i class="fas fa-redo mr-1"></i>Recoveries</a>
+          </div>
+
+          <div class="keeper-footer">
+            <a href="#" id="km-record" class="keeper-record">
+              <span><i class="fas fa-file-alt mr-2"></i>View full keeper record</span>
+              <i class="fas fa-arrow-right" style="font-size:14px;"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="luis-footer">
+    <a href="#">Privacy Policy <i class="fas fa-external-link-alt"></i></a>
+    <a href="#">Cookie Policy <i class="fas fa-external-link-alt"></i></a>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/luis.js"></script>
+  <script src="js/luis-data.js"></script>
+  <script>
+    /* ── KEEPER SEARCH ── */
+    function searchKeeperEtm() {
+      var cphEl   = document.getElementById('etm-cph');
+      var herdEl  = document.getElementById('etm-herd');
+      var errorEl = document.getElementById('etm-error');
+      var cph     = cphEl.value.trim();
+      var herd    = herdEl.value.trim();
+      var keeper;
+
+      function clearErrors() {
+        errorEl.style.display = 'none';
+        errorEl.innerHTML = '';
+        cphEl.classList.remove('search-card__input--error');
+        herdEl.classList.remove('search-card__input--error');
+      }
+      function showError(msg, el) {
+        errorEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+        errorEl.style.display = 'flex';
+        if (el) el.classList.add('search-card__input--error');
+      }
+
+      clearErrors();
+
+      if (!cph && !herd) {
+        showError('Enter a CPH or a herd/flock number.', null);
+        return;
+      }
+      if (cph) {
+        keeper = window.LUIS_DATA.getKeeperByCph(cph);
+        if (!keeper) { showError('No keeper found for that CPH.', cphEl); return; }
+        if (herd && !keeper.herds.some(function(h) { return String(h.herd) === herd; })) {
+          showError("That herd or flock isn’t registered to that CPH.", herdEl);
+          return;
+        }
+        openKeeperModal(keeper.cph);
+        return;
+      }
+      keeper = window.LUIS_DATA.getKeeperByHerd(herd);
+      if (!keeper) { showError('No keeper found for that herd or flock number.', herdEl); return; }
+      openKeeperModal(keeper.cph);
+    }
+
+    /* ── INPUT WIRING ── */
+    document.addEventListener('DOMContentLoaded', function () {
+      toggleRail('searches');
+      var cphEl   = document.getElementById('etm-cph');
+      var herdEl  = document.getElementById('etm-herd');
+      var errorEl = document.getElementById('etm-error');
+      function clearErr() {
+        errorEl.style.display = 'none';
+        cphEl.classList.remove('search-card__input--error');
+        herdEl.classList.remove('search-card__input--error');
+      }
+      [cphEl, herdEl].forEach(function (inp) {
+        inp.addEventListener('input',   clearErr);
+        inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') searchKeeperEtm(); });
+      });
+    });
+  </script>
+</body>
+</html>

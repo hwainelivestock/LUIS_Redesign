@@ -1,0 +1,524 @@
+/* Navbar */
+.navbar { background-color: #0d3349 !important; }
+.navbar-brand, .nav-link { color: white; }
+
+/* Yellow stripe below navbar */
+.luis-stripe { height: 6px; background-color: #c8d400; width: 100%; }
+
+/* ── RAIL LAYOUT ── */
+.luis-rail-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* ── ICON RAIL ── */
+.luis-rail {
+  width: 60px;
+  background: #0d3349;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 54px);
+  overflow-y: auto;
+}
+
+.rail-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  flex: 1;
+}
+
+.rail-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 8px;
+}
+
+.rail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px 6px;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.rail-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  text-decoration: none;
+}
+
+.rail-item.active {
+  background: rgba(255,255,255,0.15);
+  border-left-color: #c8d400;
+  color: white;
+}
+
+.rail-item i {
+  font-size: 1.1rem;
+  margin-bottom: 3px;
+  color: inherit;
+}
+
+.rail-label {
+  font-size: 0.55rem;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.rail-etm {
+  color: #c8d400;
+}
+
+.rail-etm:hover {
+  color: #c8d400;
+}
+
+.rail-logout {
+  color: rgba(255,255,255,0.65);
+}
+
+.rail-logout:hover {
+  color: rgba(255,255,255,0.85);
+}
+
+.rail-divider {
+  width: 32px;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+  margin: 6px 0;
+}
+
+/* ── FLYOUT PANEL ── */
+.luis-flyout {
+  width: 0;
+  overflow: hidden;
+  background: white;
+  border-right: 0.5px solid #e5e7eb;
+  transition: width 0.2s ease;
+  flex-shrink: 0;
+}
+
+.luis-flyout.open {
+  width: 200px;
+}
+
+.flyout-panel {
+  display: none;
+  min-width: 200px;
+}
+
+.flyout-panel.active {
+  display: block;
+}
+
+.flyout-header {
+  padding: 12px 16px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+  border-bottom: 0.5px solid #e5e7eb;
+}
+
+.flyout-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  color: #444;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.flyout-item:hover {
+  background: #f8f9fa;
+  color: #0d3349;
+  text-decoration: none;
+  border-left-color: #c8d400;
+}
+
+.flyout-item i {
+  font-size: 0.85rem;
+  color: #0d3349;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.flyout-item.active {
+  color: #0d3349;
+  font-weight: 500;
+  border-left-color: #0d3349;
+}
+
+/* ── PAGE CONTENT ── */
+.rail-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* Buttons */
+.btn-luis {
+  background-color: #0d3349; color: white;
+  border: none;
+  border-radius: 4px;
+}
+.btn-luis:hover { background-color: #0a2538; color: white; }
+
+/* Badges */
+.badge-conventional {
+  background-color: #c8d400; color: #333;
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 0.85rem;
+}
+.badge-eid {
+  background-color: #eff6ff; color: #1d4ed8;
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 0.85rem;
+}
+.badge-slaughter {
+  background-color: #f3f4f6; color: #4b5563;
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 0.85rem;
+}
+.badge-replica {
+  background-color: #f0fdf4; color: #15803d;
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 0.85rem;
+}
+
+/* Tag icons */
+.tag-icon { color: #c8d400; }
+.tag-icon-grey { color: #aaa; }
+
+/* Footer */
+.luis-footer {
+  background-color: #0d3349;
+  color: white;
+  padding: 12px 24px;
+  text-align: right;
+  border-top: 4px solid #c8d400;
+}
+.luis-footer a { color: white; margin-left: 16px; }
+
+/* LUIS logo badge */
+.luis-logo-badge {
+  background-color: #0d3349;
+  border: 2px solid #c8d400;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* ===== Context Bar / Context Card ===== */
+.context-bar {
+  background: #f4f5f6;
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+.context-card {
+  background: #fff;
+  border: 0.5px solid #dee2e6;
+  border-left: 4px solid #c8d400;
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+}
+
+.context-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.context-card__eyebrow {
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #6c757d;
+  letter-spacing: .04em;
+}
+
+.context-card__name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.context-card__name {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.context-card__cph-pill {
+  font-size: 12px;
+  font-weight: 500;
+  background: #dde6ec;
+  border: 0.5px solid #b9c7d2;
+  color: #0d3349;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 4px;
+}
+
+.context-card__details {
+  font-size: 13px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.context-card__change-keeper {
+  color: #8a9600;
+  text-decoration: underline;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.context-card__actions {
+  border-top: 0.5px solid #e9ecef;
+  margin-top: 12px;
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.context-card__action-link {
+  font-size: 13px;
+  color: #0d3349;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   RECORD DETAIL PAGES  (keeper-details, herd-details, + reuse)
+   Reusable identity header + detail list + sidebar tiles
+   ============================================================ */
+
+/* Identity header card */
+.record-header {
+  background:#fff;
+  border:0.5px solid #dee2e6;
+  border-left:4px solid #c8d400;
+  border-radius:0 8px 8px 0;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.record-eyebrow {
+  font-size:11px;
+  color:#6c757d;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.record-name {
+  font-size:20px;
+  font-weight:600;
+  color:#0d3349;
+  line-height:1.2;
+  margin-top:2px;
+}
+.record-subline {
+  color:#6c757d;
+  font-size:13px;
+  margin-top:5px;
+}
+.record-change {            /* the Change keeper / Change herd link, top-right */
+  color:#8a9600;
+  text-decoration:underline;
+  font-size:13px;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.record-change:hover { color:#8a9600; }
+
+/* Navy-tint pill (CPH / species) — reusable */
+.luis-pill {
+  display:inline-block;
+  font-size:12px;
+  font-weight:500;
+  background:#dde6ec;
+  color:#0d3349;
+  border:0.5px solid #b9c7d2;
+  padding:2px 8px;
+  border-radius:8px;
+  vertical-align:2px;
+  margin-left:6px;
+}
+
+/* Two-column layout below the header */
+.record-layout {
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  margin-top:12px;
+}
+.record-main { flex:2; min-width:300px; }
+.record-side { flex:1; min-width:220px; }
+
+/* Generic white content card + section label */
+.record-card {
+  background:#fff;
+  border:0.5px solid #dee2e6;
+  border-radius:8px;
+  padding:14px 16px;
+}
+.record-card + .record-card { margin-top:12px; }
+.record-card-head {
+  font-size:11px;
+  color:#6c757d;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+/* Detail list (label / value rows) */
+.detail-row {
+  display:flex;
+  padding:11px 0;
+  border-bottom:0.5px solid #f1f3f5;
+  font-size:14px;
+}
+.detail-row:last-child { border-bottom:0; }
+.detail-label { width:120px; color:#6c757d; flex-shrink:0; }
+.detail-value { color:#212529; }
+.detail-value--empty { color:#adb5bd; }   /* for "Not provided" */
+
+/* Shared card — record tiles (admin) + order type cards (ETM) */
+.luis-card {
+  background:#fff;
+  border:0.5px solid #dee2e6;
+  border-left:3px solid #c8d400;
+  border-radius:0 6px 6px 0;
+  padding:10px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  text-decoration:none;
+}
+.luis-card:hover { border-color:#0d3349; border-left-color:#0d3349; }
+.luis-card:hover .luis-card__title { text-decoration:underline; }
+.luis-card:hover .luis-card__arrow { color:#0d3349; }
+.luis-card__title { font-size:14px; font-weight:600; color:#0d3349; }
+.luis-card__sub   { font-size:12px; color:#6c757d; margin-top:2px; }
+.luis-card__arrow { color:#8a9600; font-size:15px; flex-shrink:0; }
+/* vertical stacking only in the detail-page sidebar, NOT in the Select Species grid */
+.record-card .luis-card + .luis-card { margin-top:8px; }
+
+/* Unused tags block */
+.unused-tags {
+  margin-top:4px;
+  padding-top:13px;
+  border-top:0.5px solid #f1f3f5;
+}
+.unused-counts { display:flex; flex-wrap:wrap; gap:18px; margin:6px 0 12px; }
+.unused-item { font-size:14px; color:#212529; }
+.unused-count { font-weight:600; color:#0d3349; }
+.unused-count--zero { font-weight:600; color:#adb5bd; }
+
+/* Secondary / outline button (Cancel unused tags) */
+.btn-luis-outline {
+  background:#fff;
+  color:#0d3349;
+  border:0.5px solid #0d3349;
+  font-size:13px;
+  font-weight:500;
+  padding:8px 16px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.btn-luis-outline:hover { background:#f4f5f6; color:#0d3349; }
+
+/* ── LUIS TABLE ── */
+.luis-table{width:100%;margin-bottom:0;font-size:0.82rem;color:#212529;}
+.luis-table th{padding:8px 12px;font-weight:700;text-transform:none;color:#212529;border-bottom:2px solid #dee2e6;text-align:left;vertical-align:bottom;}
+.luis-table td{padding:8px 12px;border-top:1px solid #dee2e6;vertical-align:middle;}
+.luis-table tbody tr{background:#fff;}
+.luis-table tbody tr:hover{background:#f5f7f8;}
+.luis-table th .fa-sort{color:#6c757d;font-size:80%;}
+.luis-table td.luis-table__action,.luis-table th.luis-table__action{text-align:right;}
+
+/* ── KEEPER MODAL ── */
+.keeper-modal .modal-dialog{max-width:460px}
+.keeper-modal .modal-content{position:relative;border-radius:10px;border:.5px solid #d7dbde}
+.keeper-modal .modal-body{padding:20px}
+.keeper-close{position:absolute;top:14px;right:16px;color:#0d3349;opacity:1;font-size:1.3rem;line-height:1;background:none;border:none;z-index:5}
+.keeper-eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b7a83}
+.keeper-hero{font-size:18px;font-weight:500;color:#0d3349;margin:2px 0 0}
+.keeper-pill{display:inline-block;background:#dde6ec;border:.5px solid #c3d0d8;color:#0d3349;font-size:12px;padding:3px 10px;border-radius:20px}
+.keeper-sub{font-size:13px;color:#5f6b72}
+.keeper-action{display:flex;align-items:center;justify-content:space-between;background:#fff;border:.5px solid #d7dbde;border-left:3px solid #c8d400;padding:14px 16px;text-decoration:none}
+.keeper-action:hover{border-color:#0d3349;border-left-color:#c8d400}
+.keeper-action-title{font-size:15px;font-weight:500;color:#0d3349}
+.keeper-action-sub{font-size:12px;color:#5f6b72;margin-top:2px}
+.keeper-action .arrow{color:#8a9600;font-size:16px}
+.keeper-recent-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#9aa4aa;margin:16px 0 8px}
+.keeper-chips{display:flex;gap:8px}
+.keeper-chip{flex:1;text-align:center;padding:9px 6px;border:.5px solid #d7dbde;border-radius:4px;font-size:12px;color:#0d3349;text-decoration:none}
+.keeper-footer{margin-top:18px;padding-top:14px;border-top:.5px solid #e3e6e8}
+.keeper-record{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#8a9600;text-decoration:none}
+
+/* ── SEARCH CARD ── */
+.search-card{background:#fff;border:1px solid #e7eaec;border-radius:8px;padding:22px 24px;max-width:520px}
+.search-card__title{font-size:18px;font-weight:500;color:#0d3349;margin:0 0 4px}
+.search-card__help{font-size:13px;color:#6b7a83;margin:0 0 14px}
+.search-card__row{display:flex;gap:10px;align-items:center}
+.search-card__input{flex:1;border:1px solid #cbd2d6;border-radius:4px;padding:10px 12px;font-size:14px;color:#1f2d35;background:#fff}
+.search-card__error{font-size:12px;color:#b23b3b;margin:8px 0 0;display:none;align-items:center;gap:6px}
+.search-card__input--error{border-color:#b23b3b}
+.search-card .btn-luis{padding:9px 18px;font-size:14px;white-space:nowrap}
+
+.search-card__select{border:1px solid #cbd2d6;border-radius:4px;padding:10px 12px;font-size:14px;color:#1f2d35;background:#fff;width:100%}
+.mfr-actions{display:flex;align-items:center;gap:18px;margin-top:18px}
+.mfr-back{font-size:14px;color:#8a9600;text-decoration:none}
+
+/* ── ORDERS SEARCH FIELDS ── */
+.search-card__label{font-size:13px;font-weight:500;color:#0d3349;display:block;margin-bottom:6px}
+.search-card__field-hint{font-size:13px;color:#6b7a83;margin:0 0 10px}
+.search-card__fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.search-card__field--full{grid-column:1 / -1}
+.search-card__fields .search-card__input,.search-card__fields .search-card__select{width:100%;box-sizing:border-box}
+.search-card__date-row{display:flex;gap:12px}
+.search-card__date-row .search-card__input{flex:1;min-width:0}
+@media(max-width:640px){.search-card__fields{grid-template-columns:1fr}}
